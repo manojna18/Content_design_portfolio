@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confines of words</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@900&family=Archivo+Black&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #932d2c;
+        --ink: #fffbf7;
+        --line: #e8dcd3;
+        --ink-soft: #6f6259;
+        --active: #b23c39;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--paper);
+      }
+      .wrap {
+        position: relative;
+        width: 100%;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1000 / 252;
+        background: var(--paper);
+      }
+      #debug-results {
+        margin: 0;
+        padding: 16px;
+        font: 12px/1.5 ui-monospace, Menlo, monospace;
+        white-space: pre-wrap;
+        color: var(--ink);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas
+        id="c"
+        aria-label="Looping animation. A small ball is trapped inside the word writer, set in a heavy typeface. It ricochets through the letters from left to right, then breaks out of the final letter and arcs up and to the right. While it is in the air the word changes to designer and the ball lands as the period. After a pause the word returns to writer and the loop repeats."
+      ></canvas>
+    </div>
+
+    <script>
+      /*
+       * "Confines of words" hero animation.
+       *
+       * A shaded ball is confined to the ink of the word WRITER. It ricochets
+       * up through each letter body and drops between them, working left to
+       * right, then breaks out of the final R; while it is airborne the word
+       * crossfades to DESIGNER and the ball lands as the period.
+       *
+       * Letters: Archivo Black, set to just touch (reference-style tight
+       * tracking). To let the ball travel the length of the word the collision
+       * mask adds a thin baseline slab tying the letter feet into one chamber.
+       * That slab is NOT drawn — only the letters are — so the word looks
+       * cleanly spaced; the ball only ever crosses the hairline seams.
+       *
+       *  - collision is sampled against the rendered pixels (letters + slab);
+       *  - buildRoute runs a weighted search on a 3px grid: entering a low cell
+       *    costs more, so the cheapest route climbs as high into each letter as
+       *    the ink allows and only dips to the slab at the seams — a path that
+       *    weaves through the letters;
+       *  - the ball follows it by visibility-limited pursuit with a
+       *    reflection-dominant bounce on each wall hit, a small rightward bias
+       *    to keep the run time tight, a hop off the slab into the letter
+       *    bodies, and a gentle escort as the last-resort unstick.
+       *
+       * buildAll picks the smallest ball that a headless 50-run check
+       * completes cleanly, then that config is frozen.
+       *
+       * Query flags for QA (inert otherwise):
+       *  ?debug           run 50 headless simulations, print a pass/fail report
+       *  ?frame=N&seed=S   render a single deterministic frame
+       */
+      (function () {
+        "use strict";
+
+        var canvas = document.getElementById("c");
+        var ctx = canvas.getContext("2d");
+        var DEBUG = /[?&]debug/.test(location.search);
+        var reduceMotion =
+          window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        /* ---------- internal drawing space ---------- */
+        var W = 1000,
+          H = 252,
+          BASE_Y = 250; // baseline, in internal units
+        var BG = "#932d2c",
+          INK = "#fffbf7";
+        var DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+        function setupCanvas() {
+          canvas.width = Math.round(W * DPR);
+          canvas.height = Math.round(H * DPR);
+          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        }
+
+        /* ---------- seeded rng (Mulberry32) ---------- */
+        function mulberry32(a) {
+          return function () {
+            a |= 0;
+            a = (a + 0x6d2b79f5) | 0;
+            var t = Math.imul(a ^ (a >>> 15), 1 | a);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+          };
+        }
+
+        /* ---------- font helpers ---------- */
+        function font(px) {
+          return (
+            '900 ' + px + 'px "Archivo Black","Public Sans","Arial Black",sans-serif'
+          );
+        }
+
+        var off = document.createElement("canvas");
+        var octx = off.getContext("2d", { willReadFrequently: true });
+
+        // Scan a single glyph rendered alone; return ink extents relative to
+        // the drawing origin (pen x, alphabetic baseline y). Memoised.
+        var glyphCache = {};
+        function glyphInk(ch, px) {
+          var key = ch + "@" + px;
+          if (glyphCache[key]) return glyphCache[key];
+          var res = glyphInkRaw(ch, px);
+          glyphCache[key] = res;
+          return res;
+        }
+        function glyphInkRaw(ch, px) {
+          var pad = Math.ceil(px * 0.7) + 6;
+          var w = Math.ceil(px * 1.6) + pad * 2;
+          var h = Math.ceil(px * 2.0) + pad * 2;
+          off.width = w;
+          off.height = h;
+          octx.clearRect(0, 0, w, h);
+          octx.font = font(px);
+          octx.textBaseline = "alphabetic";
+          octx.textAlign = "left";
+          octx.fillStyle = "#000";
+          var bx = pad,
+            by = h - pad;
+          octx.fillText(ch, bx, by);
+          var d = octx.getImageData(0, 0, w, h).data;
+          var minX = w,
+            maxX = -1,
+            minY = h,
+            maxY = -1;
+          for (var y = 0; y < h; y++) {
+            for (var x = 0; x < w; x++) {
+              if (d[(y * w + x) * 4 + 3] > 24) {
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+              }
+            }
+          }
+          if (maxX < 0) {
+            var adv = octx.measureText(ch).width;
+            return { left: 0, right: adv, top: -px * 0.7, bottom: 0, empty: true };
+          }
+          return {
+            left: minX - bx,
+            right: maxX - bx + 1,
+            top: minY - by,
+            bottom: maxY - by + 1,
+            empty: false,
+          };
+        }
+
+        // Place each glyph so its ink overlaps the previous glyph's ink by
+        // `overlap` px. Positions come from scanned ink, not font advances.
+        function layout(word, px, overlap) {
+          var items = [];
+          var cursorRight = null;
+          for (var i = 0; i < word.length; i++) {
+            var b = glyphInk(word[i], px);
+            var wantLeft = cursorRight === null ? 0 : cursorRight - overlap;
+            var drawX = wantLeft - b.left;
+            items.push({ ch: word[i], drawX: drawX, b: b });
+            cursorRight = drawX + b.right;
+          }
+          var tops = items.map(function (it) {
+            return it.b.top;
+          });
+          var bottoms = items.map(function (it) {
+            return it.b.bottom;
+          });
+          return {
+            items: items,
+            inkLeft: 0,
+            inkRight: cursorRight,
+            inkWidth: cursorRight,
+            inkTop: Math.min.apply(null, tops),
+            inkBottom: Math.max.apply(null, bottoms),
+          };
+        }
+
+        function chooseFontPx() {
+          // ink dimensions scale ~linearly with px; measure once and solve
+          var probe = 200;
+          var wr = layout("WRITER", probe, -GAP);
+          var de = layout("DESIGNER", probe, -GAP);
+          var maxW = Math.max(wr.inkWidth, de.inkWidth);
+          var capH = Math.max(-wr.inkTop, -de.inkTop);
+          var belowBase = Math.max(wr.inkBottom, de.inkBottom);
+          var sW = (W * 0.96) / maxW;
+          var sH = (H * 0.78) / capH;
+          // only constrain against the bottom edge for real descenders;
+          // WRITER/DESIGNER have none (just ~3px of curve overshoot on S/G),
+          // so let the baseline sit flush with the canvas edge
+          var sB = belowBase > 8 ? (H - 3 - BASE_Y) / belowBase : 99;
+          var px = Math.floor(probe * Math.min(sW, sH, sB, 1.8));
+          return Math.max(70, Math.min(px, 300));
+        }
+
+        /* ---------- ink mask + collision ---------- */
+        var mask = document.createElement("canvas");
+        var mctx = mask.getContext("2d", { willReadFrequently: true });
+        var maskData = null;
+
+        // Bridges: short slabs across the white gaps between adjacent letter
+        // feet, so the separately-spaced glyphs form one continuous chamber.
+        // They are real ink — drawn into the mask AND the visible word — so the
+        // ball collides with them honestly and never crosses white space.
+        // Gaps are found by scanning a strip just above the baseline, which
+        // works for every glyph shape (T, E, ... included).
+        // One clean slab along the baseline ties the separately-spaced glyphs
+        // into a single chamber. It is real ink — in the mask AND the visible
+        // word — so the ball collides honestly and never crosses white. It
+        // reads as a deliberate heavy baseline rule.
+        var bridgeCache = {};
+        function bridgeRects(lay, offX, bridgeH) {
+          var key = (lay === LAY_D ? "D" : "W") + offX + "|" + bridgeH;
+          if (bridgeCache[key]) return bridgeCache[key];
+          var x0 = offX + lay.inkLeft;
+          var x1 = offX + lay.inkRight;
+          var rects = [
+            { x: x0, y: BASE_Y - bridgeH, w: x1 - x0, h: bridgeH },
+          ];
+          bridgeCache[key] = rects;
+          return rects;
+        }
+
+        function buildMask(lay, offX, px, bridgeH) {
+          var rects = bridgeH ? bridgeRects(lay, offX, bridgeH) : [];
+          mask.width = W;
+          mask.height = H;
+          mctx.clearRect(0, 0, W, H);
+          mctx.fillStyle = "#000";
+          rects.forEach(function (r) {
+            mctx.fillRect(r.x, r.y, r.w, r.h);
+          });
+          mctx.font = font(px);
+          mctx.textBaseline = "alphabetic";
+          mctx.textAlign = "left";
+          lay.items.forEach(function (it) {
+            mctx.fillText(it.ch, it.drawX + offX, BASE_Y);
+          });
+          maskData = mctx.getImageData(0, 0, W, H).data;
+        }
+
+        function inkAt(x, y) {
+          x = x | 0;
+          y = y | 0;
+          if (x < 0 || y < 0 || x >= W || y >= H) return false;
+          return maskData[(y * W + x) * 4 + 3] > 128;
+        }
+
+        // Full clearance: centre in ink and a ring at radius+2 fully in ink.
+        function fits(x, y, r) {
+          if (!inkAt(x, y)) return false;
+          var rr = r + 2;
+          for (var a = 0; a < 16; a++) {
+            var t = (a / 16) * Math.PI * 2;
+            if (!inkAt(x + Math.cos(t) * rr, y + Math.sin(t) * rr)) return false;
+          }
+          return true;
+        }
+
+        // Softer test used during motion so the ball is not trapped by the
+        // exact same predicate that carved the route.
+        function fitsSoft(x, y, r) {
+          if (!inkAt(x, y)) return false;
+          var rr = r * 0.82;
+          for (var a = 0; a < 10; a++) {
+            var t = (a / 10) * Math.PI * 2;
+            if (!inkAt(x + Math.cos(t) * rr, y + Math.sin(t) * rr)) return false;
+          }
+          return true;
+        }
+
+        /* ---------- route search ---------- */
+        var CELL = 3;
+
+        // Weighted search (Dial's algorithm). Entering a cell costs 1 plus a
+        // penalty that grows the lower the cell sits, so the cheapest route
+        // climbs as high into each letter body as the ink allows and only drops
+        // to the baseline seam where that is the sole connection. The result is
+        // a path that weaves up through the letters and dips between them —
+        // which the pursuit + bounce physics then turn into a real ricochet.
+        function buildRoute(lay, offX, r, targetX) {
+          var gw = Math.floor(W / CELL);
+          var gh = Math.floor(H / CELL);
+          var n = gw * gh;
+          var pass = new Uint8Array(n);
+          var pen = new Uint8Array(n); // height penalty per cell
+          var yTop = BASE_Y - CAP_H;
+          var HK = 5; // strength of the "climb into the letter" preference
+          for (var gy = 0; gy < gh; gy++) {
+            for (var gx = 0; gx < gw; gx++) {
+              var cx = gx * CELL + CELL / 2;
+              var cy = gy * CELL + CELL / 2;
+              var idx = gy * gw + gx;
+              if (fits(cx, cy, r)) {
+                pass[idx] = 1;
+                var f = (cy - yTop) / CAP_H;
+                if (f < 0) f = 0;
+                else if (f > 1) f = 1;
+                pen[idx] = Math.round(f * HK);
+              }
+            }
+          }
+          // start: leftmost passable cell, low in the word (on the slab chamber)
+          var start = -1,
+            startScore = 1e18;
+          var yPref = BASE_Y - 24;
+          for (var i = 0; i < n; i++) {
+            if (!pass[i]) continue;
+            var g = i % gw;
+            var cyi = ((i / gw) | 0) * CELL + CELL / 2;
+            var sc = g * CELL + Math.max(0, yPref - cyi) * 0.4;
+            if (sc < startScore) {
+              startScore = sc;
+              start = i;
+            }
+          }
+          if (start < 0) return null;
+
+          var dist = new Int32Array(n);
+          for (var d0 = 0; d0 < n; d0++) dist[d0] = -1;
+          var prev = new Int32Array(n);
+          var MAXB = gw * (HK + 2) + 16;
+          var buckets = [];
+          for (var b = 0; b < MAXB; b++) buckets.push([]);
+          dist[start] = 0;
+          buckets[0].push(start);
+          var dirs = [
+            [1, 0],
+            [-1, 0],
+            [0, 1],
+            [0, -1],
+            [1, 1],
+            [1, -1],
+            [-1, 1],
+            [-1, -1],
+          ];
+          var goal = -1;
+          for (var cd = 0; cd < MAXB && goal < 0; cd++) {
+            var bk = buckets[cd];
+            for (var bi = 0; bi < bk.length; bi++) {
+              var cur = bk[bi];
+              if (dist[cur] !== cd) continue; // stale
+              var cgx = cur % gw;
+              var cgy = (cur / gw) | 0;
+              if (cgx * CELL + CELL / 2 >= targetX) {
+                goal = cur;
+                break;
+              }
+              for (var di = 0; di < 8; di++) {
+                var dx = dirs[di][0],
+                  dy = dirs[di][1];
+                var nx = cgx + dx,
+                  ny = cgy + dy;
+                if (nx < 0 || ny < 0 || nx >= gw || ny >= gh) continue;
+                var ni = ny * gw + nx;
+                if (!pass[ni]) continue;
+                if (dx !== 0 && dy !== 0) {
+                  if (!pass[cgy * gw + (cgx + dx)] || !pass[(cgy + dy) * gw + cgx])
+                    continue;
+                }
+                var nd = cd + 1 + pen[ni];
+                if (nd < MAXB && (dist[ni] < 0 || nd < dist[ni])) {
+                  dist[ni] = nd;
+                  prev[ni] = cur;
+                  buckets[nd].push(ni);
+                }
+              }
+            }
+          }
+          if (goal < 0) return null;
+
+          var cells = [];
+          var c = goal;
+          while (c !== start) {
+            cells.push(c);
+            c = prev[c];
+          }
+          cells.push(start);
+          cells.reverse();
+          var pts = cells.map(function (ci) {
+            return {
+              x: (ci % gw) * CELL + CELL / 2,
+              y: ((ci / gw) | 0) * CELL + CELL / 2,
+            };
+          });
+          return { start: pts[0], pts: pts };
+        }
+
+        function pathLength(pts) {
+          var L = 0;
+          for (var i = 1; i < pts.length; i++) {
+            L += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+          }
+          return L;
+        }
+
+        function resample(pts, step) {
+          var out = [pts[0]];
+          var acc = 0;
+          for (var i = 1; i < pts.length; i++) {
+            acc += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+            if (acc >= step) {
+              out.push(pts[i]);
+              acc = 0;
+            }
+          }
+          var last = pts[pts.length - 1];
+          if (out[out.length - 1] !== last) out.push(last);
+          return out;
+        }
+
+        /* ---------- build ---------- */
+        // Letter tracking. GAP is ink-to-ink space in px; 0 = glyphs just
+        // touching (reference-style tight setting), negative = overlap.
+        var GAP = 0;
+
+        var PX,
+          BRIDGE_H,
+          R,
+          LAY_W,
+          OFF_W,
+          LAY_D,
+          OFF_D,
+          ROUTE,
+          WAYPOINTS,
+          ARC,
+          PATH_LEN,
+          PATHLEN,
+          CAP_H,
+          TARGET_X,
+          LAST_LETTER_X0,
+          WRITER_INK_RIGHT;
+
+        function computePath(route) {
+          WAYPOINTS = resample(route.pts, 20);
+          PATHLEN = pathLength(route.pts);
+          ARC = [0];
+          for (var wi = 1; wi < WAYPOINTS.length; wi++) {
+            ARC[wi] =
+              ARC[wi - 1] +
+              Math.hypot(
+                WAYPOINTS[wi].x - WAYPOINTS[wi - 1].x,
+                WAYPOINTS[wi].y - WAYPOINTS[wi - 1].y
+              );
+          }
+          PATH_LEN = ARC[ARC.length - 1];
+        }
+
+        var ACCEPT_TRIES = 7;
+        function acceptConfig() {
+          var good = 0;
+          for (var k = 0; k < ACCEPT_TRIES; k++) {
+            var t = simulateOnce(k * 37 + 3);
+            if (
+              t.reachedLast &&
+              t.brokeOut &&
+              !t.leftInk &&
+              t.passedEdge &&
+              t.travelSec <= 11 &&
+              t.crawl <= 110
+            )
+              good++;
+          }
+          return good;
+        }
+
+        function buildAll() {
+          PX = chooseFontPx();
+          LAY_W = layout("WRITER", PX, -GAP);
+          LAY_D = layout("DESIGNER", PX, -GAP);
+          OFF_W = (W - LAY_W.inkWidth) / 2;
+          OFF_D = (W - LAY_D.inkWidth) / 2;
+          CAP_H = -LAY_W.inkTop;
+
+          var lastB = LAY_W.items[LAY_W.items.length - 1].b;
+          var lastDrawX = LAY_W.items[LAY_W.items.length - 1].drawX + OFF_W;
+          TARGET_X = lastDrawX + (lastB.left + lastB.right) / 2;
+          LAST_LETTER_X0 = lastDrawX + lastB.left;
+          WRITER_INK_RIGHT = OFF_W + LAY_W.inkRight;
+
+          var ratios = [0.038, 0.033, 0.028, 0.024];
+          var best = null;
+          for (var ri = 0; ri < ratios.length; ri++) {
+            var r = Math.max(3, CAP_H * ratios[ri]);
+            var bh = Math.max(14, Math.ceil(2 * r + 8));
+            buildMask(LAY_W, OFF_W, PX, bh);
+            var route = buildRoute(LAY_W, OFF_W, r, TARGET_X);
+            if (!route) continue;
+            R = r;
+            BRIDGE_H = bh;
+            ROUTE = route;
+            computePath(route);
+            var good = acceptConfig();
+            if (good >= ACCEPT_TRIES) return true;
+            if (!best || good > best.good) {
+              best = { good: good, r: r, bh: bh, route: route };
+            }
+          }
+          if (best) {
+            R = best.r;
+            BRIDGE_H = best.bh;
+            ROUTE = best.route;
+            computePath(best.route);
+            buildMask(LAY_W, OFF_W, PX, BRIDGE_H);
+            return true;
+          }
+          return false;
+        }
+
+        function simulateOnce(seed) {
+          reset(seed);
+          var maxFrames = 24 * 60,
+            f = 0,
+            maxX = -1,
+            leftInk = false;
+          while (state === "travel" && f < maxFrames) {
+            stepTravel();
+            f++;
+            if (ball.x > maxX) maxX = ball.x;
+            if (!inkAt(ball.x, ball.y)) {
+              leftInk = true;
+              break;
+            }
+          }
+          var brokeOut = state !== "travel" && !leftInk;
+          var bf = 0;
+          while (state === "breakout" && bf < 600) {
+            stepBreakout(1 / 60);
+            bf++;
+          }
+          return {
+            maxX: maxX,
+            leftInk: leftInk,
+            brokeOut: brokeOut,
+            crawl: crawlCount,
+            reachedLast: maxX >= LAST_LETTER_X0 + 2,
+            passedEdge: ball.x > WRITER_INK_RIGHT,
+            travelSec: travelFrames / 60,
+          };
+        }
+
+        /* ---------- simulation state ---------- */
+        var state = "idle"; // idle | travel | breakout | rest | rewind
+        var ball = { x: 0, y: 0, vx: 0, vy: 0 };
+        var restHold = 0; // frames spent showing the settled DESIGNER
+        var rewindT = 0; // 0..1 crossfade of DESIGNER back to WRITER
+        var REST_HOLD_FRAMES = 96;
+        var rewindFrom = { x: 0, y: 0 };
+        var progress = 0; // arc length covered along the route
+        var bestProgress = 0;
+        var stallFrames = 0;
+        var crawlCount = 0;
+        var speed = 2;
+        var travelFrames = 0;
+        var breakoutT = 0;
+        var breakoutDur = 1.15;
+        var breakoutFrom = { x: 0, y: 0 };
+        var breakoutTo = { x: 0, y: 0 };
+        var ARC_H = 90;
+        var wordMix = 0; // 0 = WRITER, 1 = DESIGNER
+        var rng = Math.random;
+
+        function restPoint() {
+          return { x: OFF_D + LAY_D.inkRight + R * 1.35, y: BASE_Y - R };
+        }
+
+        // The collision mask (WRITER + baseline slab) is built once per config
+        // in buildAll and left active; reset() does not rebuild it.
+        function reset(seed) {
+          rng = mulberry32(
+            seed == null ? (Math.random() * 2147483647) | 0 : seed | 0
+          );
+          ball.x = ROUTE.start.x;
+          ball.y = ROUTE.start.y;
+          var ang = rng() * Math.PI * 2;
+          var dx = Math.cos(ang) * 0.5 + 0.7;
+          var dy = Math.sin(ang) * 0.7;
+          var m = Math.hypot(dx, dy) || 1;
+          speed = Math.max(1.6, Math.min(3.5, (PATH_LEN * 1.95) / 7.5 / 60));
+          ball.vx = (dx / m) * speed;
+          ball.vy = (dy / m) * speed;
+          progress = 0;
+          bestProgress = 0;
+          stallFrames = 0;
+          crawlCount = 0;
+          travelFrames = 0;
+          breakoutT = 0;
+          restHold = 0;
+          rewindT = 0;
+          wordMix = 0;
+          state = "travel";
+        }
+
+        function normalAt(x, y, r) {
+          var nx = 0,
+            ny = 0;
+          for (var a = 0; a < 18; a++) {
+            var t = (a / 18) * Math.PI * 2;
+            var cx = Math.cos(t),
+              cy = Math.sin(t);
+            if (!inkAt(x + cx * (r + 2), y + cy * (r + 2))) {
+              nx -= cx;
+              ny -= cy;
+            }
+          }
+          var m = Math.hypot(nx, ny);
+          if (m < 1e-6) return null;
+          return { x: nx / m, y: ny / m };
+        }
+
+        // arc length of the point on the route polyline nearest to (x, y)
+        function projectProgress(x, y) {
+          var best = 1e18,
+            bestArc = 0;
+          for (var i = 1; i < WAYPOINTS.length; i++) {
+            var ax = WAYPOINTS[i - 1].x,
+              ay = WAYPOINTS[i - 1].y;
+            var bx = WAYPOINTS[i].x,
+              by = WAYPOINTS[i].y;
+            var dx = bx - ax,
+              dy = by - ay;
+            var segLen2 = dx * dx + dy * dy || 1;
+            var t = ((x - ax) * dx + (y - ay) * dy) / segLen2;
+            if (t < 0) t = 0;
+            else if (t > 1) t = 1;
+            var px = ax + dx * t,
+              py = ay + dy * t;
+            var d = (x - px) * (x - px) + (y - py) * (y - py);
+            if (d < best) {
+              best = d;
+              bestArc = ARC[i - 1] + Math.sqrt(segLen2) * t;
+            }
+          }
+          return bestArc;
+        }
+
+        function pointAtArc(s) {
+          if (s <= 0) return WAYPOINTS[0];
+          if (s >= PATH_LEN) return WAYPOINTS[WAYPOINTS.length - 1];
+          var lo = 0,
+            hi = ARC.length - 1;
+          while (hi - lo > 1) {
+            var mid = (lo + hi) >> 1;
+            if (ARC[mid] <= s) lo = mid;
+            else hi = mid;
+          }
+          var seg = ARC[hi] - ARC[lo] || 1;
+          var t = (s - ARC[lo]) / seg;
+          return {
+            x: WAYPOINTS[lo].x + (WAYPOINTS[hi].x - WAYPOINTS[lo].x) * t,
+            y: WAYPOINTS[lo].y + (WAYPOINTS[hi].y - WAYPOINTS[lo].y) * t,
+          };
+        }
+
+        // clear straight-line path through ink between two points
+        function lineOfSight(x0, y0, x1, y1, half) {
+          var dx = x1 - x0,
+            dy = y1 - y0;
+          var len = Math.hypot(dx, dy) || 1;
+          var ux = dx / len,
+            uy = dy / len;
+          var px = -uy * half,
+            py = ux * half;
+          for (var d = 0; d <= len; d += 6) {
+            var cx = x0 + ux * d,
+              cy = y0 + uy * d;
+            if (
+              !inkAt(cx, cy) ||
+              !inkAt(cx + px, cy + py) ||
+              !inkAt(cx - px, cy - py)
+            )
+              return false;
+          }
+          return true;
+        }
+
+        function stepTravel() {
+          travelFrames++;
+
+          progress = projectProgress(ball.x, ball.y);
+          if (progress > bestProgress + 0.4) {
+            bestProgress = progress;
+            stallFrames = 0;
+          } else {
+            stallFrames++;
+          }
+
+          // visibility-limited pure pursuit: aim as far along the route as we
+          // can still see in a straight shot, so junctions thread naturally
+          var desperation = Math.min(1, stallFrames / 100);
+          var maxLook = 60 - desperation * 20;
+          var aim = null,
+            clearAim = false;
+          for (var la = maxLook; la >= 10; la -= 12) {
+            var cand = pointAtArc(progress + la);
+            if (lineOfSight(ball.x, ball.y, cand.x, cand.y, R * 0.55)) {
+              aim = cand;
+              clearAim = true;
+              break;
+            }
+          }
+          if (!aim) aim = pointAtArc(progress + 10);
+
+          var adx = aim.x - ball.x,
+            ady = aim.y - ball.y;
+          var am = Math.hypot(adx, ady) || 1;
+          adx /= am;
+          ady /= am;
+
+          // continuous steer: firm when the aim is in clear sight, gentle when
+          // we are ricocheting to find a new angle
+          var steer =
+            (clearAim ? 0.045 : 0.02) + desperation * (clearAim ? 0.13 : 0.06);
+          ball.vx += adx * speed * steer;
+          ball.vy += ady * speed * steer;
+          // gentle rightward bias keeps the wander moving toward the exit so
+          // the run time stays tight without flattening the bounce
+          ball.vx += speed * (0.028 + desperation * 0.03);
+          var vm = Math.hypot(ball.vx, ball.vy) || 1;
+          ball.vx = (ball.vx / vm) * speed;
+          ball.vy = (ball.vy / vm) * speed;
+
+          // loose leash: if the ball has strayed well off the route, ease its
+          // position back toward the centreline a hair so orbits cannot persist
+          var near = pointAtArc(progress);
+          var offx = near.x - ball.x,
+            offy = near.y - ball.y;
+          var offd = Math.hypot(offx, offy);
+          if (offd > R * 2.6) {
+            var pull = Math.min(0.4, (offd - R * 2.6) * 0.025);
+            var lx = ball.x + (offx / offd) * pull;
+            var ly = ball.y + (offy / offd) * pull;
+            if (inkAt(lx, ly)) {
+              ball.x = lx;
+              ball.y = ly;
+            }
+          }
+
+          var steps = Math.max(1, Math.ceil(speed / (R * 0.4)));
+          for (var s = 0; s < steps; s++) {
+            var nx = ball.x + ball.vx / steps;
+            var ny = ball.y + ball.vy / steps;
+            if (fitsSoft(nx, ny, R)) {
+              ball.x = nx;
+              ball.y = ny;
+              continue;
+            }
+            // wall hit: reflect, then blend with the pursuit direction
+            var n = normalAt(ball.x, ball.y, R) || { x: -1, y: 0 };
+            var vdotn = ball.vx * n.x + ball.vy * n.y;
+            var rx = ball.vx - 2 * vdotn * n.x;
+            var ry = ball.vy - 2 * vdotn * n.y;
+            var rm = Math.hypot(rx, ry) || 1;
+            rx /= rm;
+            ry /= rm;
+            var steerW = (clearAim ? 0.4 : 0.32) + desperation * 0.36;
+            var reflW = 1 - steerW;
+            var bx = rx * reflW + adx * steerW;
+            var by = ry * reflW + ady * steerW;
+            var bm = Math.hypot(bx, by) || 1;
+            bx /= bm;
+            by /= bm;
+            // must not point back into the wall
+            if (bx * n.x + by * n.y < 0) {
+              var d2 = bx * n.x + by * n.y;
+              bx = bx - 2 * d2 * n.x;
+              by = by - 2 * d2 * n.y;
+              var bm2 = Math.hypot(bx, by) || 1;
+              bx /= bm2;
+              by /= bm2;
+              if (bx * n.x + by * n.y < 0) {
+                bx = n.x;
+                by = n.y;
+              }
+            }
+            ball.vx = bx * speed;
+            ball.vy = by * speed;
+            // if we bounced off a near-flat floor (the slab), add a hop so the
+            // ball springs up into the letter body above rather than skating
+            // along the base; only when there is ink overhead to bounce within
+            if (n.y < -0.55 && inkAt(ball.x, ball.y - CAP_H * 0.45)) {
+              ball.vy -= speed * (0.7 + rng() * 0.5);
+              var hm = Math.hypot(ball.vx, ball.vy) || 1;
+              ball.vx = (ball.vx / hm) * speed;
+              ball.vy = (ball.vy / hm) * speed;
+            }
+            // unstick: walk out along the surface normal
+            var it = 0;
+            while (!fitsSoft(ball.x, ball.y, R) && it < 24) {
+              var nn = normalAt(ball.x, ball.y, R) || n;
+              ball.x += nn.x * 1.4;
+              ball.y += nn.y * 1.4;
+              it++;
+            }
+            break;
+          }
+
+          // deep-stall fallback: escort the ball forward along the route
+          // centreline so it can never be permanently trapped in a bowl or a
+          // tight junction. Ramps in gently, only after a genuine stall.
+          if (stallFrames > 120) {
+            crawlCount++;
+            var escStr = Math.min(1, (stallFrames - 120) / 120);
+            for (var eo = 8; eo <= 64; eo += 8) {
+              var esc = pointAtArc(bestProgress + eo);
+              if (!inkAt(esc.x, esc.y)) continue;
+              var ex = esc.x - ball.x,
+                ey = esc.y - ball.y;
+              var em = Math.hypot(ex, ey) || 1;
+              var stepPx = Math.min(em, 0.4 + escStr * 1.5);
+              var cx = ball.x + (ex / em) * stepPx;
+              var cy = ball.y + (ey / em) * stepPx;
+              if (inkAt(cx, cy)) {
+                ball.x = cx;
+                ball.y = cy;
+                ball.vx = (ex / em) * speed;
+                ball.vy = (ey / em) * speed;
+                var np = projectProgress(cx, cy);
+                if (np > bestProgress) bestProgress = np;
+              }
+              break;
+            }
+          }
+
+          // breakout when the ball has worked its way to the end of the route
+          if (progress >= PATH_LEN - 6 || ball.x >= TARGET_X) {
+            return startBreakout();
+          }
+          if (travelFrames > 13 * 60) startBreakout();
+        }
+
+        function startBreakout() {
+          state = "breakout";
+          breakoutT = 0;
+          breakoutFrom = { x: ball.x, y: ball.y };
+          breakoutTo = restPoint();
+        }
+
+        function stepBreakout(dt) {
+          breakoutT += dt / breakoutDur;
+          var t = Math.min(1, breakoutT);
+          ball.x = breakoutFrom.x + (breakoutTo.x - breakoutFrom.x) * t;
+          var lineY = breakoutFrom.y + (breakoutTo.y - breakoutFrom.y) * t;
+          ball.y = lineY - ARC_H * Math.sin(Math.PI * t);
+          wordMix = Math.max(0, Math.min(1, (t - 0.3) / 0.3));
+          if (t >= 1) {
+            state = "rest";
+            restHold = 0;
+            ball.x = breakoutTo.x;
+            ball.y = breakoutTo.y;
+            wordMix = 1;
+          }
+        }
+
+        var rewindDur = 0.7;
+        function stepRewind(dt) {
+          rewindT += dt / rewindDur;
+          var t = Math.min(1, rewindT);
+          var e = t * t * (3 - 2 * t); // smoothstep
+          var target = WAYPOINTS[0];
+          ball.x = rewindFrom.x + (target.x - rewindFrom.x) * e;
+          var lineY = rewindFrom.y + (target.y - rewindFrom.y) * e;
+          ball.y = lineY - ARC_H * 0.55 * Math.sin(Math.PI * t);
+          if (t >= 1) reset(null);
+        }
+
+        /* ---------- rendering ---------- */
+        function drawWord(lay, offX, alpha) {
+          if (alpha <= 0) return;
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = INK;
+          // The baseline slab lives only in the collision mask; it is not drawn.
+          // Letters are set just touching so there is no visible gap for the
+          // ball to cross.
+          ctx.font = font(PX);
+          ctx.textBaseline = "alphabetic";
+          ctx.textAlign = "left";
+          lay.items.forEach(function (it) {
+            ctx.fillText(it.ch, it.drawX + offX, BASE_Y);
+          });
+          ctx.restore();
+        }
+
+        function drawBall(x, y) {
+          var r = R;
+          var aboveLine = Math.max(0, BASE_Y - r - y);
+          var lift = Math.min(1, aboveLine / ARC_H);
+
+          // contact shadow
+          ctx.save();
+          ctx.globalAlpha = 0.22 * (1 - lift * 0.7);
+          ctx.fillStyle = "#5a1c1b";
+          ctx.beginPath();
+          ctx.ellipse(
+            x,
+            state === "breakout" || state === "rest" ? BASE_Y + r * 0.35 : y + r * 0.95,
+            r * (1.5 - lift * 0.5),
+            r * (0.5 - lift * 0.2),
+            0,
+            0,
+            Math.PI * 2
+          );
+          ctx.fill();
+          ctx.restore();
+
+          // shaded sphere
+          var g = ctx.createRadialGradient(
+            x - r * 0.38,
+            y - r * 0.38,
+            r * 0.1,
+            x,
+            y,
+            r
+          );
+          g.addColorStop(0, "#a99a8f");
+          g.addColorStop(0.28, "#5b4f46");
+          g.addColorStop(0.6, "#2f2823");
+          g.addColorStop(1, "#181410");
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
+
+          // specular dot
+          ctx.fillStyle = "rgba(255, 251, 247, 0.9)";
+          ctx.beginPath();
+          ctx.arc(x - r * 0.4, y - r * 0.42, r * 0.18, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        function draw() {
+          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+          ctx.fillStyle = BG;
+          ctx.fillRect(0, 0, W, H);
+          var writerA = 1 - wordMix,
+            designerA = wordMix;
+          if (state === "rewind") {
+            // sequential, not a crossfade: DESIGNER fades out, then WRITER in,
+            // so the two different-length words never overlap on screen
+            designerA = Math.max(0, 1 - rewindT / 0.5);
+            writerA = Math.max(0, (rewindT - 0.5) / 0.5);
+          }
+          drawWord(LAY_W, OFF_W, writerA);
+          drawWord(LAY_D, OFF_D, designerA);
+          drawBall(ball.x, ball.y);
+        }
+
+        function drawFinalState() {
+          var rp = restPoint();
+          ball.x = rp.x;
+          ball.y = rp.y;
+          wordMix = 1;
+          state = "rest";
+          draw();
+        }
+
+        /* ---------- loop ---------- */
+        var raf = null;
+        var lastTs = null;
+
+        function frame(ts) {
+          if (lastTs == null) lastTs = ts;
+          var dt = Math.min(0.05, (ts - lastTs) / 1000);
+          lastTs = ts;
+          if (state === "travel") {
+            var n = Math.max(1, Math.round(dt * 60));
+            for (var i = 0; i < n && state === "travel"; i++) stepTravel();
+          } else if (state === "breakout") {
+            stepBreakout(dt);
+          } else if (state === "rest") {
+            if (++restHold >= REST_HOLD_FRAMES) {
+              state = "rewind";
+              rewindT = 0;
+              rewindFrom = { x: ball.x, y: ball.y };
+            }
+          } else if (state === "rewind") {
+            stepRewind(dt);
+          }
+          draw();
+          raf = requestAnimationFrame(frame);
+        }
+
+        function start() {
+          if (raf) cancelAnimationFrame(raf);
+          lastTs = null;
+          reset(null);
+          raf = requestAnimationFrame(frame);
+        }
+
+        /* ---------- headless verification ---------- */
+        function runHeadless(count) {
+          var failures = [];
+          var durations = [];
+          var crawlRuns = [];
+          for (var seed = 0; seed < count; seed++) {
+            reset(seed);
+            var ok = true,
+              reason = "";
+            var maxFrames = 30 * 60;
+            var f = 0;
+            var maxX = -1;
+            while (state === "travel" && f < maxFrames) {
+              stepTravel();
+              f++;
+              if (ball.x > maxX) maxX = ball.x;
+              if (!inkAt(ball.x, ball.y)) {
+                ok = false;
+                reason =
+                  "centre left ink at frame " +
+                  f +
+                  " (" +
+                  ball.x.toFixed(1) +
+                  ", " +
+                  ball.y.toFixed(1) +
+                  ")";
+                break;
+              }
+            }
+            if (ok && state === "travel") {
+              ok = false;
+              reason = "did not break out within " + maxFrames + " frames";
+            }
+            // must have travelled into the final letter's ink before breaking out
+            if (ok && maxX < LAST_LETTER_X0 + 2) {
+              ok = false;
+              reason =
+                "did not reach the last letter (maxX=" +
+                maxX.toFixed(1) +
+                ", last letter ink starts " +
+                LAST_LETTER_X0.toFixed(1) +
+                ")";
+            }
+            // run the breakout to rest
+            var bf = 0;
+            while (state === "breakout" && bf < 600) {
+              stepBreakout(1 / 60);
+              bf++;
+            }
+            if (ok && ball.x <= WRITER_INK_RIGHT) {
+              ok = false;
+              reason =
+                "ball did not pass the right edge of the word ink (x=" +
+                ball.x.toFixed(1) +
+                ", edge=" +
+                WRITER_INK_RIGHT.toFixed(1) +
+                ")";
+            }
+            if (ok) durations.push(+(travelFrames / 60).toFixed(2));
+            else failures.push({ seed: seed, reason: reason });
+            if (crawlCount > 0) crawlRuns.push({ seed: seed, crawlFrames: crawlCount });
+          }
+          durations.sort(function (a, b) {
+            return a - b;
+          });
+          return {
+            runs: count,
+            pass: failures.length === 0,
+            failures: failures,
+            travelSeconds: {
+              min: durations[0],
+              median: durations[durations.length >> 1],
+              p90: durations[Math.floor(durations.length * 0.9)],
+              max: durations[durations.length - 1],
+            },
+            over9s: durations.filter(function (d) {
+              return d > 9;
+            }).length,
+            crawlAffectedRuns: crawlRuns.length,
+            crawlWorst: crawlRuns.reduce(function (m, c) {
+              return Math.max(m, c.crawlFrames);
+            }, 0),
+            build: {
+              fontPx: PX,
+              gap: GAP,
+              bridgeH: BRIDGE_H,
+              ballRadius: +R.toFixed(2),
+              capHeight: +CAP_H.toFixed(1),
+              ballDiameterPctOfCap: +((2 * R * 100) / CAP_H).toFixed(1),
+              waypoints: WAYPOINTS.length,
+              pathLength: +PATHLEN.toFixed(0),
+              speedPerFrame: +speed.toFixed(2),
+            },
+          };
+        }
+
+        function fail(msg) {
+          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+          ctx.fillStyle = BG;
+          ctx.fillRect(0, 0, W, H);
+          ctx.fillStyle = "#65617c";
+          ctx.font = '400 16px "Public Sans", sans-serif';
+          ctx.textAlign = "center";
+          ctx.fillText(msg, W / 2, H / 2);
+        }
+
+        /* ---------- boot ---------- */
+        function boot() {
+          setupCanvas();
+          var t0 = (window.performance || Date).now();
+          var built = buildAll();
+          var buildMs = Math.round((window.performance || Date).now() - t0);
+          if (!built) {
+            fail("Could not build a route.");
+            if (DEBUG) {
+              var pe = document.createElement("pre");
+              pe.id = "debug-results";
+              pe.textContent = JSON.stringify(
+                { pass: false, error: "buildAll failed" },
+                null,
+                2
+              );
+              document.body.appendChild(pe);
+            }
+            return;
+          }
+
+          if (DEBUG) {
+            var res = runHeadless(50);
+            res.buildMs = buildMs;
+            var pre = document.createElement("pre");
+            pre.id = "debug-results";
+            pre.textContent = JSON.stringify(res, null, 2);
+            document.body.appendChild(pre);
+            drawFinalState();
+            return;
+          }
+
+          // ?frame=N&seed=S : render a single deterministic frame (visual QA)
+          var fm = /[?&]frame=(\d+)/.exec(location.search);
+          if (fm) {
+            var fs = /[?&]seed=(\d+)/.exec(location.search);
+            reset(fs ? +fs[1] : 7);
+            var tgt = +fm[1];
+            for (var fi = 0; fi < tgt; fi++) {
+              if (state === "travel") stepTravel();
+              else if (state === "breakout") stepBreakout(1 / 60);
+              else if (state === "rest") {
+                if (++restHold >= REST_HOLD_FRAMES) {
+                  state = "rewind";
+                  rewindT = 0;
+                  rewindFrom = { x: ball.x, y: ball.y };
+                }
+              } else if (state === "rewind") stepRewind(1 / 60);
+            }
+            draw();
+            return;
+          }
+
+          if (reduceMotion) {
+            drawFinalState();
+            return;
+          }
+
+          start();
+
+          // pause the loop while the animation is scrolled out of view
+          if ("IntersectionObserver" in window) {
+            new IntersectionObserver(
+              function (entries) {
+                if (entries[0].isIntersecting) {
+                  if (!raf) {
+                    lastTs = null;
+                    raf = requestAnimationFrame(frame);
+                  }
+                } else if (raf) {
+                  cancelAnimationFrame(raf);
+                  raf = null;
+                }
+              },
+              { threshold: 0 }
+            ).observe(canvas);
+          }
+        }
+
+        if (document.fonts && document.fonts.load) {
+          Promise.all([
+            document.fonts.load('900 200px "Archivo Black"', "WRITERDESIGN"),
+            document.fonts.load('400 200px "Archivo Black"', "WRITERDESIGN"),
+            document.fonts.load('900 200px "Public Sans"', "WRITERDESIGN"),
+          ])
+            .then(function () {
+              return document.fonts.ready;
+            })
+            .then(boot, boot);
+        } else {
+          window.addEventListener("load", boot);
+        }
+      })();
+    </script>
+  </body>
+</html>

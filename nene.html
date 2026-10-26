@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nene | Manogna</title>
+    <link rel="stylesheet" href="styles.css?v=26">
+  </head>
+  <body>
+    <nav class="nav">
+      <a href="index.html" class="nav-wordmark" aria-label="Manogna Maddipatla"><span class="wm-full">Manogna Maddipatla</span><span class="wm-short">MM</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Work</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="Assets/Resume_latest.pdf" target="_blank">Resume</a></li>
+      </ul>
+    </nav>
+
+    <main class="page">
+      <a href="index.html" class="case-back">Back to work</a>
+
+      <div class="cs-head">
+        <h1 class="cs-title">Nene</h1>
+        <p class="cs-summary">A national park visit companion</p>
+      </div>
+
+      <div class="case-hero-image is-fit">
+        <img
+          src="Assets/nene-screens.jpg"
+          alt="Nene on five phones: map home by day, map home by night, a park map, a park journal page, and the plants and animals page"
+        >
+      </div>
+
+      <div class="meta-strip">
+        <div class="meta-item">
+          <p class="meta-label">Role</p>
+          <p class="meta-value">Concept, product direction, art direction</p>
+        </div>
+        <div class="meta-item">
+          <p class="meta-label">Timeline</p>
+          <p class="meta-value">2+ weeks, ongoing</p>
+        </div>
+        <div class="meta-item">
+          <p class="meta-label">Tools</p>
+          <p class="meta-value">Figma, Claude, Claude Code, React Native</p>
+        </div>
+        <div class="meta-item">
+          <p class="meta-label">Deliverable</p>
+          <p class="meta-value">Figma prototype, app in progress</p>
+        </div>
+      </div>
+
+      <div class="glance">
+        <div class="glance-item">
+          <p class="glance-label">Who</p>
+          <p class="glance-text">
+            Visitors to US national parks who want to plan a trip and remember
+            it.
+          </p>
+        </div>
+        <div class="glance-item">
+          <p class="glance-label">What</p>
+          <p class="glance-text">
+            A map-first app that guides you through park visits and serves as a
+            journal for your national park adventures. See all your national
+            park experiences in one place.
+          </p>
+        </div>
+        <div class="glance-item">
+          <p class="glance-label">Why</p>
+          <p class="glance-text">
+            Stamp trackers, trail guides and species ID live in separate apps,
+            and even the closest all-in-one options skip weather logs and
+            species ID. Android options are thinner still.
+          </p>
+        </div>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Intro</p>
+        <h2>Park visits are vivid for a day and then fade.</h2>
+        <p>Nene guides you through the visit and keeps it afterward.</p>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Challenge</p>
+        <p>
+          Nene had to work as a trail guide, a sightings log, a passport tracker
+          and a keepsake journal without feeling like four apps stitched
+          together. The answer was a map that serves as the home screen, the
+          planning tool and the memory book at once.
+        </p>
+        <p>
+          Flags mark where you’ve been and pins mark where you’re going. Each
+          park opens into trails, viewpoints, wildlife and weather, then into a
+          journal page styled like a physical park book.
+        </p>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Results</p>
+        <ul class="results-list">
+          <li>A US map home screen with flags for visited parks and pins for parks to visit</li>
+          <li>A UI that follows the real time of day, with stargazing spots and sunset animal movements at night</li>
+          <li>Journal pages with stamps and photos that become captioned Polaroids</li>
+          <li>A plants and animals page with scrolling rows and detail sheets on where to spot each one</li>
+        </ul>
+        <div class="result-stat">
+          <span class="result-stat-num">2+ weeks</span>
+          <span class="result-stat-label">Concept to prototype</span>
+        </div>
+      </div>
+
+      <!-- TODO: Figma prototype embed goes here once the share URL is in -->
+
+      <div class="decisions-section">
+        <div class="block">
+          <p class="block-label">Design decisions</p>
+        </div>
+
+        <div class="decision-feature">
+          <div class="decision-text">
+            <p class="decision-title">Map as home</p>
+            <div class="decision-body">
+              <p>
+                Flags and pins make progress visible at a glance, instead of a
+                list to scroll.
+              </p>
+            </div>
+          </div>
+          <div class="screen-placeholder decision-screen is-full">
+            <span>Map home</span>
+            <img
+              src="Assets/nene-map.jpg"
+              alt="Nene map home screen: a US map with flags on visited parks and pins on parks to visit"
+              onerror="this.remove()"
+            >
+          </div>
+        </div>
+
+        <div class="decision-feature is-flipped">
+          <div class="decision-text">
+            <p class="decision-title">Time of day as the theme</p>
+            <div class="decision-body">
+              <p>
+                The interface follows the device clock automatically, with no
+                manual switch.
+              </p>
+              <p>
+                Night unlocks stargazing spots and sunset animal tracking.
+              </p>
+            </div>
+          </div>
+          <div class="screen-placeholder decision-screen is-full">
+            <span>Night map</span>
+            <img
+              src="Assets/nene-night.jpg"
+              alt="Nene map home at night, with stargazing spots and sunset animal tracking"
+              onerror="this.remove()"
+            >
+          </div>
+        </div>
+
+        <div class="decision-feature">
+          <div class="decision-text">
+            <p class="decision-title">Journal as keepsake</p>
+            <div class="decision-body">
+              <p>
+                Ruled lines, stamps and Polaroids make the record feel like
+                something you’d keep.
+              </p>
+            </div>
+          </div>
+          <div class="screen-placeholder decision-screen is-full">
+            <span>Journal page</span>
+            <img
+              src="Assets/nene-journal.jpg"
+              alt="Nene park journal page with ruled lines, a park stamp and captioned Polaroid photos"
+              onerror="this.remove()"
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Reflections &amp; next steps</p>
+        <p>
+          On a recent trip to Rocky Mountain National Park, I saw how much
+          planning a visit takes: sunrise and sunset spots, trails, stargazing
+          areas, places to look for wildlife. I also saw how much visitors want
+          to hold onto afterward, from photos and souvenirs to hiking stats. A
+          competitor analysis showed the pieces exist but are scattered across
+          separate apps. I wanted one app that handles both, so a park visit can
+          be relaxed while it happens and memorable once it’s over.
+        </p>
+        <p>
+          The concept, features and product judgment are mine. I designed the
+          interface with Claude and a Figma agent, and I’m building it with
+          Claude Code. Directing that work taught me that a feature is only as
+          good as the data behind it. I designed park pages with detailed maps,
+          what-to-wear tips and wildlife spotting guidance, but that level of
+          detail doesn’t exist in one place for all 63 parks. The NPS API wasn’t
+          enough, so I’m looking for other data sources.
+        </p>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <p class="footer-cta">Let's make something clear.</p>
+          <p class="footer-sub">Open to content design roles.</p>
+        </div>
+        <div class="footer-links">
+          <a href="mailto:manogna.maddipatla@gmail.com">Email</a>
+          <a
+            href="https://linkedin.com/in/manogna-maddipatla"
+            target="_blank"
+            rel="noopener"
+          >LinkedIn</a>
+          <a href="https://substack.com/@manogna" target="_blank" rel="noopener"
+          >Substack</a>
+        </div>
+      </div>
+      <div class="footer-base">
+        <span>Manogna</span>
+        <span>Detroit, MI</span>
+      </div>
+    </footer>
+  </body>
+</html>

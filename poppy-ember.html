@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poppy &amp; Ember | Manogna</title>
+    <link rel="stylesheet" href="styles.css?v=26">
+  </head>
+  <body>
+    <nav class="nav">
+      <a href="index.html" class="nav-wordmark" aria-label="Manogna Maddipatla"><span class="wm-full">Manogna Maddipatla</span><span class="wm-short">MM</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Work</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="Assets/Resume_latest.pdf" target="_blank">Resume</a></li>
+      </ul>
+    </nav>
+
+    <main class="page">
+      <a href="index.html" class="case-back">Back to work</a>
+
+      <div class="cs-head">
+        <h1 class="cs-title">Poppy &amp; Ember</h1>
+      </div>
+
+      <div class="block">
+        <p>
+          As someone who loves both the written word and art, Poppy &amp; Ember
+          was born from a desire to connect the two.
+        </p>
+        <p>
+          Most places to read poetry online are cluttered, clinical, or both.
+          This project was designed to be the opposite: a minimal, immersive
+          interface that slows you down. A hand-painted poppy garden at dusk.
+          Glowing fireflies, each one hiding a poem. Tap one and read.
+        </p>
+        <p>The experience is intentionally nostalgic.</p>
+      </div>
+
+      <div class="case-hero-image is-fit">
+        <video
+          src="Assets/poppy-ember.mp4"
+          autoplay
+          muted
+          loop
+          playsinline
+          aria-label="A hand holding a phone, scrolling through a poem in Poppy &amp; Ember"
+        ></video>
+      </div>
+
+      <div class="meta-strip">
+        <div class="meta-item">
+          <p class="meta-label">Role</p>
+          <p class="meta-value">Product design &amp; content curation</p>
+        </div>
+        <div class="meta-item">
+          <p class="meta-label">Tools</p>
+          <p class="meta-value">Claude Code</p>
+        </div>
+        <div class="meta-item">
+          <p class="meta-label">Timeline</p>
+          <p class="meta-value">6 hrs</p>
+        </div>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Challenge</p>
+        <h2>Mood and words, hand in hand.</h2>
+        <p>
+          Digital reading experiences prioritize efficiency and volume.
+          <em>Poppy &amp; Ember</em> was designed to invite curiosity, slow,
+          deliberate interaction, and emotional connection. The poems were
+          hand-picked to evoke nostalgia and longing. The visual design imitates
+          walking into a garden at dusk. Mood and words go hand-in-hand to
+          deliver a curated experience for users.
+        </p>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Results</p>
+        <h2>From browsing to wandering.</h2>
+        <p>
+          Imitating an art installation, <em>Poppy &amp; Ember</em> reimagines
+          how users encounter poetry. It shifts the experience from browsing to
+          wandering. It demonstrates how interaction, illustration, and
+          restraint can work together to create a more immersive and
+          contemplative digital space.
+        </p>
+        <div class="result-stat">
+          <span class="result-stat-num">6 hrs</span>
+          <span class="result-stat-label">Idea to product</span>
+        </div>
+      </div>
+
+      <div class="case-hero-image is-fit">
+        <img
+          src="Assets/Poppy_garden_cover.png"
+          alt="Hand-painted poppy garden at dusk: red poppies over a teal field under a deep blue sky with faint glowing fireflies"
+        >
+      </div>
+
+      <div class="block">
+        <p class="block-label">Design choices</p>
+        <h2>The artwork is the navigation.</h2>
+        <p>
+          The interface is built around a hand-painted illustration to evoke
+          warmth and tactility. The contrast between the dark sky and luminous
+          fireflies guides attention without traditional UI elements, allowing
+          the artwork itself to function as navigation.
+        </p>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Conclusion</p>
+        <h2>Restraint was the lesson.</h2>
+        <p>
+          <em>Poppy &amp; Ember</em> required a different kind of design
+          thinking. Without lists, menus, or familiar navigation structures, the
+          interface had to guide users entirely through visual cues and
+          interaction.
+        </p>
+        <p>
+          The most important lesson was restraint. Every added element risked
+          breaking the stillness of the experience. Decisions had to be
+          intentional, and minimal.
+        </p>
+        <p>
+          If I were to take this further, I would explore how to balance that
+          element of discovery with subtle guidance, ensuring users don't feel
+          lost while still preserving the sense of anticipation.
+        </p>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <p class="footer-cta">Let's make something clear.</p>
+          <p class="footer-sub">Open to content design roles.</p>
+        </div>
+        <div class="footer-links">
+          <a href="mailto:manogna.maddipatla@gmail.com">Email</a>
+          <a
+            href="https://linkedin.com/in/manogna-maddipatla"
+            target="_blank"
+            rel="noopener"
+          >LinkedIn</a>
+          <a href="https://substack.com/@manogna" target="_blank" rel="noopener"
+          >Substack</a>
+        </div>
+      </div>
+      <div class="footer-base">
+        <span>Manogna</span>
+        <span>Detroit, MI</span>
+      </div>
+    </footer>
+
+    <script>
+      // Hold the video still for readers who ask for less motion
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const video = document.querySelector('.case-hero-image video');
+        video.removeAttribute('autoplay');
+        video.pause();
+      }
+    </script>
+  </body>
+</html>

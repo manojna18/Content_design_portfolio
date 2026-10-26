@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bird populations | Manogna</title>
+    <link rel="stylesheet" href="styles.css?v=26">
+  </head>
+  <body>
+    <nav class="nav">
+      <a href="index.html" class="nav-wordmark" aria-label="Manogna Maddipatla"><span class="wm-full">Manogna Maddipatla</span><span class="wm-short">MM</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Work</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="Assets/Resume_latest.pdf" target="_blank">Resume</a></li>
+      </ul>
+    </nav>
+
+    <main class="page">
+      <a href="index.html" class="case-back">Back to work</a>
+
+      <div class="cs-head">
+        <h1 class="cs-title">Bird population trends in North America</h1>
+        <p class="cs-summary">A data story</p>
+      </div>
+
+      <div class="block">
+        <p>
+          Nearly 3 billion birds have disappeared from North America in the last
+          50 years. I stumbled upon this number by accident. It exists in
+          government reports and datasets, but most of it is text. Without
+          something to anchor it, a number that big is easy to scroll past.
+        </p>
+        <p>This data story was built to make it harder to look away.</p>
+        <a href="https://manojna18.github.io/bird-population-trends/" class="case-link" target="_blank" rel="noopener">Read the story</a>
+      </div>
+
+      <div class="meta-strip">
+        <div class="meta-item">
+          <p class="meta-label">Role</p>
+          <p class="meta-value">Designer, developer, writer, illustrator</p>
+        </div>
+        <div class="meta-item">
+          <p class="meta-label">Type</p>
+          <p class="meta-value">Personal project</p>
+        </div>
+        <div class="meta-item">
+          <p class="meta-label">Tools</p>
+          <p class="meta-value">D3, Svelte, Flourish, watercolor</p>
+        </div>
+        <div class="meta-item">
+          <p class="meta-label">Deliverable</p>
+          <p class="meta-value">Scrollytelling data story</p>
+        </div>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Challenge</p>
+        <h2>Finding the human scale inside the data.</h2>
+        <p>
+          Most people don't have a relationship with "geese and swans" as a
+          category. But they do have a relationship with the Canada goose.
+          Everyone has a parking lot story.
+        </p>
+        <p>
+          Each bird illustration in the story serves as an entry point into its
+          data group. Painted by hand, not sourced. The goal was to make the
+          data feel like it was worth someone's time to paint. Because it was.
+        </p>
+        <p>
+          The second challenge was format. The risk wasn't just that the data
+          was complex. It was that presenting it as text would repeat the exact
+          problem this project set out to fix.
+        </p>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Results</p>
+        <h2>One metric to hold the whole story.</h2>
+        <p>
+          The dataset covered decades of survey data across multiple ecological
+          categories. The key to making it tellable was finding one metric that
+          could hold the whole story: percentage change from 1970 to 2022,
+          applied consistently across every bird group.
+        </p>
+        <p>
+          That single anchor made it possible to move a general audience
+          through complex, multi-category data without losing them. Every
+          section asks the same question. The numbers change.
+        </p>
+      </div>
+
+      <div class="decisions-section">
+        <div class="block">
+          <p class="block-label">Design decisions</p>
+        </div>
+
+        <div class="decision-feature">
+          <div class="decision-text">
+            <p class="decision-title">Watercolor illustrations</p>
+            <div class="decision-body">
+              <p>
+                The illustrations were painted by hand to evoke something a
+                stock image can't: a sense of wonder for the subject, and a
+                quiet reminder of how fragile these species are.
+              </p>
+            </div>
+          </div>
+          <div class="screen-placeholder decision-screen is-wide">
+            <span>Watercolor illustration</span>
+            <img
+              src="Assets/sage-web.jpg"
+              alt="Hand-painted watercolor of a greater sage-grouse displaying its spiked tail feathers above a tuft of grass"
+              onerror="this.remove()"
+            >
+          </div>
+        </div>
+
+        <div class="decision-feature">
+          <div class="decision-text">
+            <p class="decision-title">Scrollytelling</p>
+            <div class="decision-body">
+              <p>
+                Data presented all at once is easy to ignore. Scrollytelling was
+                used to let readers move through the story at their own pace,
+                revealing one bird group at a time.
+              </p>
+              <p>
+                The format puts the reader in control of the narrative, which
+                makes the information feel discovered rather than delivered.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="decision-feature is-flipped">
+          <div class="decision-text">
+            <p class="decision-title">Interactive graphics</p>
+            <div class="decision-body">
+              <p>
+                The tipping point section uses a customized Flourish graphic
+                with a watercolor background to stay visually consistent with
+                the rest of the story.
+              </p>
+              <p>
+                Static tables can show the same data. An interactive graphic
+                lets readers explore it, hovering over individual species to
+                understand where each one sits on the spectrum of decline.
+              </p>
+            </div>
+          </div>
+          <div class="screen-placeholder decision-screen is-wide">
+            <span>Tipping point graphic</span>
+            <img
+              src="Assets/bird-data (1).png"
+              alt="Dot plot titled Birds on the brink: tipping point species by group, each dot a species' yearly trend, over a watercolor hummingbird"
+              onerror="this.remove()"
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Reflections</p>
+        <h2>Reflections and next steps.</h2>
+        <p>
+          This project sits at the intersection of design, development, data
+          journalism, and illustration. Building it alone meant making decisions
+          across all four disciplines, often at the same time. That overlap was
+          the most valuable part.
+        </p>
+        <p>
+          It deepened my appreciation for how much each of those roles depends
+          on the others. A well-cleaned dataset means nothing without a
+          narrative to carry it. A beautiful illustration means nothing if the
+          data it represents isn't legible. Every decision fed every other
+          decision.
+        </p>
+        <p>
+          I'm currently working to make the project fully mobile responsive. The
+          scrollytelling layout and D3.js visualizations perform well on
+          desktop, but smaller screens require adjustments to scaling, text
+          size, and scroll behavior to keep the experience smooth and readable.
+          In the future, I'd also like to optimize performance by simplifying
+          transitions and reducing file size for faster loading.
+        </p>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <p class="footer-cta">Let's make something clear.</p>
+          <p class="footer-sub">Open to content design roles.</p>
+        </div>
+        <div class="footer-links">
+          <a href="mailto:manogna.maddipatla@gmail.com">Email</a>
+          <a
+            href="https://linkedin.com/in/manogna-maddipatla"
+            target="_blank"
+            rel="noopener"
+          >LinkedIn</a>
+          <a href="https://substack.com/@manogna" target="_blank" rel="noopener"
+          >Substack</a>
+        </div>
+      </div>
+      <div class="footer-base">
+        <span>Manogna</span>
+        <span>Detroit, MI</span>
+      </div>
+    </footer>
+  </body>
+</html>

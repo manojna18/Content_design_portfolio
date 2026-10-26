@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallax \u2014 Manogna</title>
+    <style>
+/* ─── Google Fonts ─── */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400..600&display=swap");
+
+/* ─── Reset ─── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+img {
+  display: block;
+  max-width: 100%;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-optical-sizing: auto;
+}
+
+/* ─── Design tokens ─── */
+:root {
+  --cream:      #fffbf7;
+  --clay:       #dbc9c4;
+
+  --paper:      #fffbf7;
+  --paper-card: #f5ebe4;
+  --ink:        #24211d;
+  --ink-soft:   #6f6259;
+  --muted:      #a89a90;
+  --line:       #e8dcd3;
+  --navbar:     #24211d;
+
+  --accent:     #932d2c;
+  --active:     #b23c39;
+  --accent-2:   #932d2c;
+
+  --radius:     14px;
+
+  --font: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* ─── Base ─── */
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+/* ─── Navbar ─── */
+.nav {
+  background: var(--navbar);
+  color: var(--cream);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 20px 28px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-wordmark {
+  font-family: var(--font);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--cream);
+}
+
+.nav-wordmark .wm-short {
+  display: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 15px;
+  font-weight: 400;
+  color: #a6a8c0;
+  letter-spacing: 0.02em;
+  transition: color 0.2s;
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+}
+
+.nav-links a:hover {
+  color: var(--active);
+}
+
+.nav-links a.active {
+  color: #fff;
+  border-bottom-color: var(--active);
+}
+
+/* ─── Page wrapper ─── */
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* ─── Hero (legacy, kept for case study pages) ─── */
+.hero {
+  margin: 48px 0 52px;
+}
+
+.hero h1 {
+  font-size: 36px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.hero-sub {
+  font-size: 17px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  max-width: 520px;
+}
+
+/* ─── Tabs ─── */
+.tab-nav {
+  display: flex;
+  border-bottom: 0.5px solid var(--line);
+  margin-bottom: 44px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 10px 20px 10px 0;
+  margin-right: 28px;
+  border-bottom: 1px solid transparent;
+  margin-bottom: -0.5px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-btn:hover {
+  color: var(--active);
+}
+
+.tab-btn.active {
+  color: var(--ink);
+  border-bottom-color: var(--active);
+}
+
+.tab-panel {
+  display: none;
+}
+.tab-panel.active {
+  display: block;
+}
+
+/* ─── Featured card ─── */
+.card-featured {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 0.5px solid var(--line);
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+.card-featured:hover .card-image-area {
+  background: var(--line);
+}
+
+.card-image-area {
+  background: var(--paper-card);
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: background 0.2s ease;
+}
+
+.card-image-area img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-image-placeholder {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.featured-card-body {
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-left: 0.5px solid var(--line);
+}
+
+.featured-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.featured-title {
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 12px;
+  line-height: 1.15;
+}
+
+.featured-desc {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  font-style: italic;
+  margin-bottom: 28px;
+  flex: 1;
+}
+
+/* ─── Secondary (small) cards ─── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 44px;
+}
+
+.small-card {
+  border: 0.5px solid var(--line);
+  cursor: pointer;
+}
+
+.small-card:hover .small-image {
+  background: var(--line);
+}
+
+.small-image {
+  background: var(--paper-card);
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: background 0.2s ease;
+}
+
+.small-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.small-body {
+  padding: 24px;
+  border-top: 0.5px solid var(--line);
+}
+
+.small-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.small-desc {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--ink-soft);
+  font-style: italic;
+  line-height: 1.55;
+  margin-bottom: 12px;
+}
+
+/* ─── Tags ─── */
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 0.5px solid var(--line);
+  color: var(--ink-soft);
+}
+
+/* ─── View link ─── */
+.view-link {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.view-link:hover {
+  color: var(--active);
+}
+
+.view-link::after {
+  content: "→";
+  font-size: 15px;
+}
+
+/* ─── Section divider ─── */
+.section-divider {
+  border: none;
+  border-top: 0.5px solid var(--line);
+  margin: 0 0 32px;
+}
+
+/* ─── Currently building ─── */
+.building-label {
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+
+.building-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding-bottom: 64px;
+}
+
+.building-card {
+  border: 0.5px dashed var(--line);
+  padding: 24px;
+}
+
+.building-title {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.building-desc {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--ink-soft);
+  font-style: italic;
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+
+.building-status {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ─── Footer ─── */
+.footer {
+  background: var(--accent);
+  color: var(--cream);
+  padding: 48px 28px 40px;
+  margin-top: 64px;
+}
+
+.footer-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.footer-left {
+  max-width: 340px;
+}
+
+.footer-cta {
+  font-family: var(--font);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--cream);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.footer-sub {
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 400;
+  font-style: italic;
+  color: rgba(255, 251, 247, 0.7);
+}
+
+.footer-links {
+  display: flex;
+  gap: 28px;
+}
+
+.footer-links a {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 251, 247, 0.75);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.footer-links a:hover {
+  color: var(--cream);
+  border-bottom-color: var(--cream);
+}
+
+.footer-base {
+  max-width: 1080px;
+  margin: 36px auto 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 251, 247, 0.18);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.footer-base span {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255, 251, 247, 0.6);
+  letter-spacing: 0.04em;
+}
+
+/* ─── About page ─── */
+.about-head {
+  margin: 56px 0 48px;
+}
+
+.about-head h1 {
+  font-size: 38px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.about-lead {
+  font-size: 20px;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--accent);
+  line-height: 1.5;
+  max-width: 460px;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1fr;
+  gap: 48px;
+  align-items: start;
+  margin-bottom: 56px;
+}
+
+/* Portrait frame */
+.portrait-frame {
+  position: relative;
+  padding: 14px;
+  background: var(--accent);
+}
+
+.portrait-frame::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 0.5px solid rgba(255,255,255,0.25);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.portrait-inner {
+  aspect-ratio: 0.765;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.portrait-inner iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.portrait-placeholder-label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+
+.portrait-placeholder-hint {
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(255,255,255,0.5);
+}
+
+.portrait-caption {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+/* About copy */
+.about-copy p {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  margin-bottom: 22px;
+}
+
+.about-copy p.first {
+  font-size: 20px;
+  color: var(--ink);
+}
+
+.about-outro {
+  border-top: 0.5px solid var(--line);
+  padding-top: 32px;
+  max-width: 620px;
+  margin-bottom: 64px;
+}
+
+.about-outro p {
+  font-size: 18px;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+
+/* ─── Section headings (About: Skills, Experience, Education) ─── */
+.section-heading {
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+
+/* ─── Skills ─── */
+.skills-section {
+  margin-bottom: 56px;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-chip {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 0.5px solid var(--line);
+  padding: 7px 14px;
+  color: var(--ink-soft);
+}
+
+.skill-chip.primary {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/* ─── Experience / Education ─── */
+.entries-section {
+  margin-bottom: 56px;
+}
+
+.entry {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 22px 0;
+  border-bottom: 0.5px solid var(--line);
+  gap: 24px;
+}
+
+.entry:first-of-type {
+  border-top: 0.5px solid var(--line);
+}
+
+.entry-role {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.entry-right {
+  text-align: right;
+}
+
+.entry-org {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--ink-soft);
+  line-height: 1.2;
+}
+
+.entry-dates {
+  font-size: 13px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+  margin-top: 2px;
+}
+
+/* ─── Case study ─── */
+.case-back {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 36px 0 40px;
+  transition: color 0.2s;
+}
+
+.case-back::before {
+  content: "← ";
+}
+
+.case-back:hover {
+  color: var(--active);
+}
+
+.cs-head {
+  margin-bottom: 36px;
+}
+
+.cs-title {
+  font-size: 44px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 14px;
+  line-height: 1.1;
+}
+
+.cs-summary {
+  font-size: 20px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+/* Metadata strip */
+.meta-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 28px 0;
+  border-top: 0.5px solid var(--line);
+  border-bottom: 0.5px solid var(--line);
+  margin-bottom: 56px;
+}
+
+.meta-label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+
+.meta-value {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+/* Case study blocks */
+.block {
+  margin-bottom: 60px;
+}
+
+.block-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 400;
+  margin-bottom: 18px;
+}
+
+.block h2 {
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 18px;
+  letter-spacing: -0.01em;
+}
+
+.block p {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  margin-bottom: 18px;
+  max-width: 660px;
+}
+
+/* Hero image */
+.case-hero-image {
+  background: var(--paper-card);
+  border: 0.5px solid var(--line);
+  height: 340px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 60px;
+  overflow: hidden;
+}
+
+.case-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.case-hero-image .img-placeholder {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Figma / prototype embed */
+.prototype-embed {
+  background: var(--paper-card);
+  border: 0.5px solid var(--line);
+  height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.prototype-embed iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.prototype-embed .pe-label {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.prototype-embed .pe-hint {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.embed-caption {
+  font-size: 13px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+/* Key decisions */
+.decisions-section {
+  margin-bottom: 60px;
+}
+
+.decision {
+  border-top: 0.5px solid var(--line);
+  padding: 24px 0;
+  display: grid;
+  grid-template-columns: 0.4fr 1fr;
+  gap: 32px;
+}
+
+.decision-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.decision-body {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+/* Screen gallery */
+.screen-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 60px;
+}
+
+.screen-placeholder {
+  background: var(--paper-card);
+  border: 0.5px solid var(--line);
+  aspect-ratio: 4/3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.screen-placeholder span {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ─── Hero grid section ─── */
+.hero-grid-section {
+  padding: 60px 0 72px;
+}
+
+.hero-grid-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 48px;
+}
+
+.hero-greet {
+  font-family: var(--font);
+  font-size: 52px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+
+.hero-dot { color: var(--active); }
+
+.hero-caption {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--ink-soft);
+  line-height: 1.45;
+  max-width: 30ch;
+}
+
+.hero-em {
+  font-family: var(--font);
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-panel {
+  justify-self: end;
+  width: 100%;
+  max-width: 520px;
+}
+
+/* Word search grid */
+.word-grid {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: repeat(12, 1fr);
+  user-select: none;
+  touch-action: none;
+}
+
+.wg-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font);
+  font-size: clamp(10px, 1.4vw, 15px);
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--paper-card);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(44,41,66,.06), 0 2px 6px rgba(44,41,66,.04);
+  cursor: pointer;
+  position: relative;
+  transition: color .14s, transform .1s, box-shadow .22s;
+}
+
+.wg-cell::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 320%; height: 320%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(circle, var(--lit, var(--accent)) 0%, transparent 62%);
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+.wg-cell:hover { color: var(--ink); }
+
+.wg-cell.wg-word {
+  color: #fff;
+  background: color-mix(in srgb, var(--lit, var(--accent)) 32%, var(--paper));
+  box-shadow: 0 1px 2px rgba(44,41,66,.08);
+}
+
+.wg-cell.wg-word:hover {
+  background: color-mix(in srgb, var(--lit, var(--accent)) 42%, var(--paper));
+}
+
+.wg-cell.wg-sel {
+  color: #fff;
+  background: var(--lit, var(--accent));
+  box-shadow: 0 0 0 1px var(--lit, var(--accent));
+  transform: scale(1.08);
+  z-index: 2;
+}
+
+.wg-cell.wg-sel::before { opacity: .55; }
+
+.wg-cell.wg-found {
+  color: #fff;
+  background: var(--lit, var(--accent));
+  box-shadow: 0 0 0 1px var(--lit, var(--accent));
+  z-index: 1;
+  animation: wg-flash .4s ease;
+}
+
+.wg-cell.wg-found::before { opacity: .4; }
+
+@keyframes wg-flash {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wg-cell { transition: none; }
+  .wg-cell.wg-found { animation: none; }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 700px) {
+  .nav {
+    padding: 18px 20px;
+  }
+  .nav-wordmark .wm-full {
+    display: none;
+  }
+  .nav-wordmark .wm-short {
+    display: inline;
+    letter-spacing: 0.04em;
+  }
+  .nav-links {
+    gap: 18px;
+  }
+  .nav-links a {
+    font-size: 14px;
+  }
+  .page {
+    padding: 0 20px;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+  }
+  .hero-sub {
+    font-size: 16px;
+  }
+
+  .card-featured {
+    grid-template-columns: 1fr;
+  }
+
+  .featured-card-body {
+    border-left: none;
+    border-top: 0.5px solid var(--line);
+    padding: 24px;
+  }
+
+  .card-image-area {
+    min-height: 200px;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .building-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .about-head h1 {
+    font-size: 30px;
+  }
+
+  .entry-role {
+    font-size: 17px;
+  }
+  .entry-org {
+    font-size: 15px;
+  }
+
+  .meta-strip {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .decision {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .screen-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .cs-title {
+    font-size: 32px;
+  }
+
+  .footer {
+    padding: 40px 20px 32px;
+  }
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .footer-links {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .tab-btn {
+    font-size: 12px;
+    padding: 10px 14px 10px 0;
+    margin-right: 12px;
+  }
+
+  .hero-grid-inner {
+    grid-template-columns: 1fr;
+    padding-top: 20px;
+    gap: 30px;
+  }
+  .hero-greet { font-size: 38px; }
+  .hero-panel { justify-self: stretch; max-width: 100%; }
+}
+
+
+      /* walkthrough lightbox */
+      .case-hero-image.auto img { cursor: zoom-in; }
+      .lightbox { position: fixed; inset: 0; background: rgba(20,18,34,.92);
+        display: none; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
+      .lightbox.open { display: flex; }
+      .lightbox img { max-width: 96vw; max-height: 92vh; width: auto; height: auto;
+        object-fit: contain; border-radius: 6px; cursor: zoom-out; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+      .lightbox-close { position: fixed; top: 20px; right: 26px; font-family: var(--font-body);
+        font-size: 30px; line-height: 1; color: var(--cream); background: none; border: none;
+        cursor: pointer; opacity: .8; transition: opacity .2s; }
+      .lightbox-close:hover { opacity: 1; }
+    </style>
+    <style>
+      .case-hero-image.auto { height: auto; background: var(--paper-card); padding: 20px; }
+      .case-hero-image.auto img { height: auto; object-fit: contain; }
+      .highlight-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 60px; }
+      .highlight { border: 0.5px solid var(--line); padding: 28px; background: var(--paper-card); }
+      .highlight .h-big { font-family: var(--font); font-size: 30px; font-weight: 500; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; line-height: 1.1; }
+      .highlight .h-lbl { font-size: 15px; color: var(--ink-soft); font-style: italic; line-height: 1.5; }
+      .constraint-block { border-left: 2px solid var(--active); padding-left: 24px; }
+      .pull { font-family: var(--font); font-style: italic; font-size: 22px; color: var(--accent); line-height: 1.4; margin-bottom: 20px; max-width: 620px; }
+      @media (max-width:700px){ .highlight-strip{ grid-template-columns:1fr; } }
+    </style>
+  </head>
+  <body>
+    <nav class="nav">
+      <a href="index.html" class="nav-wordmark" aria-label="Manogna Maddipatla"><span class="wm-full">Manogna Maddipatla</span><span class="wm-short">MM</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Work</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="Assets/Resume_latest.pdf" target="_blank">Resume</a></li>
+      </ul>
+    </nav>
+
+    <main class="page">
+      <a href="index.html" class="case-back">Back to work</a>
+
+      <div class="cs-head">
+        <h1 class="cs-title">Parallax</h1>
+        <p class="cs-summary">A life-reflection journal organized around years, not days, so you can see not just what happened, but how you have changed.</p>
+      </div>
+
+      <div class="meta-strip">
+        <div class="meta-item"><p class="meta-label">Role</p><p class="meta-value">Concept, content &amp; product design, build</p></div>
+        <div class="meta-item"><p class="meta-label">Timeline</p><p class="meta-value">2 weeks, concept to shipped app</p></div>
+        <div class="meta-item"><p class="meta-label">Tools</p><p class="meta-value">Figma, Claude Code, React Native (Expo)</p></div>
+        <div class="meta-item"><p class="meta-label">Deliverable</p><p class="meta-value">Installed, working iOS and Android app</p></div>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Introduction</p>
+        <p>Parallax is a life-reflection journal built on a simple reframe: a life makes more sense as a sequence of years than as a stream of days. You do not log a Tuesday. You add to a year, and slowly the shape of a life comes into view.</p>
+        <p>I conceptualized, designed, and built it end to end: the concept, the information architecture, every word of the interface, the visual system, and the shipped app.</p>
+      </div>
+
+      <div class="block">
+        <p class="block-label">The challenge</p>
+        <h2>We record what happened. We rarely see how we changed.</h2>
+        <p>People document their lives constantly, yet those moments stay scattered across journals, photos, and notes. The tools are good at preserving the present. They rarely help anyone step back and see how their ideas, values, and sense of self have shifted over the years.</p>
+        <p>Most journals answer one question: what happened today? Parallax is built to answer a harder one: how have I changed?</p>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Highlights</p>
+        <div class="highlight-strip">
+          <div class="highlight"><p class="h-big">2 weeks</p><p class="h-lbl">From concept to a fully functional, installed app.</p></div>
+          <div class="highlight"><p class="h-big">Built with Claude Code</p><p class="h-lbl">Designed and vibe-coded end to end, one person holding every role.</p></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <p class="block-label">The constraint</p>
+        <div class="constraint-block">
+          <h2>A psychology-backed journal, without streaks or gamification.</h2>
+          <p class="pull">Parallax is a mirror, not a lever.</p>
+          <p>The app is grounded in the psychology of self-distancing and narrative identity: we understand our lives by stepping back and forming a story from a few defining moments. That framing set a hard constraint. Behavior-change hooks like streaks, scores, reminders, and goals would undercut the very perspective the app exists to give.</p>
+          <p>So they were all cut. No streaks, no scores, no nudges. The restraint became the product. The words never nag or congratulate; the structure arranges rather than measures. What is left is a quiet space that trusts the reader to return on their own terms.</p>
+        </div>
+      </div>
+
+      <div class="block">
+        <p class="block-label">The app</p>
+        <h2>Every screen, and what it does.</h2>
+      </div>
+
+      <div class="case-hero-image auto">
+        <img src="Assets/Parallax_story.png" onclick="openLightbox()" alt="Annotated walkthrough of Parallax: splash, writing with customization and tags, the seasonal album, the People page, the year wheel picker, an entry, and passcode lock.">
+      </div>
+
+      <div class="decisions-section">
+        <div class="block"><p class="block-label">Key decisions</p></div>
+
+        <div class="decision">
+          <p class="decision-title">The year is the unit, not the day</p>
+          <p class="decision-body">Journals are usually structured by day. Parallax structures by year, navigated with a wheel picker from your birth year to today. Choosing the year as the top of the information architecture is what makes perspective possible, because a life is navigable as a sequence of years in a way it never is as ten thousand days.</p>
+        </div>
+
+        <div class="decision">
+          <p class="decision-title">A fixed, first-person taxonomy</p>
+          <p class="decision-body">Entries file under six tags: my people, my values, my ideas, my milestones, my feelings, my hobbies. A small, fixed vocabulary removes the burden of organizing memories and gently guides reflection. The first-person &ldquo;my&rdquo; turns a taxonomy into territory; the grammar of the labels does emotional work.</p>
+        </div>
+
+        <div class="decision">
+          <p class="decision-title">A voice that never pressures</p>
+          <p class="decision-body">The save action reads &ldquo;Keep it,&rdquo; not &ldquo;Submit.&rdquo; Prompts stay quiet: write it as you would remember it, where it belongs, who is in it. No exclamation marks, no streak-keeping, no congratulation. Every string was checked against the mirror-not-lever principle.</p>
+        </div>
+
+        <div class="decision">
+          <p class="decision-title">Structure that reveals a second axis</p>
+          <p class="decision-body">Because names are typed into entries, a People view emerges for free, gathering everyone written about and showing them across years. No separate data model, just a different read of the same tagged content. Importance emerges from recurrence, not ranking.</p>
+        </div>
+      </div>
+
+      <div class="block">
+        <p class="block-label">Outcome</p>
+        <h2>A shipped app that keeps its promise of restraint.</h2>
+        <p>Parallax is installed and running on a real device, submitted through EAS. The concept held its shape from first principle to build: the year-based structure, the first-person taxonomy, the handwriting-and-dot-grid writing space, the season-colored album, and the People view all made it through intact.</p>
+        <p>The restraint that felt risky early, no streaks and no nudges, turned out to be the point. It also reframed the usual cold-start problem: because you can pour in years of memory from 2016 or 2019 right away, the app is never empty on day one. It is as much about recovering the past as recording the present.</p>
+        <div class="card-tags" style="margin-top:24px">
+          <span class="tag">Concept</span>
+          <span class="tag">Information architecture</span>
+          <span class="tag">Taxonomy</span>
+          <span class="tag">Voice &amp; tone</span>
+          <span class="tag">UX writing</span>
+          <span class="tag">Visual system</span>
+          <span class="tag">Shipped build</span>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <p class="footer-cta">Let's make something clear.</p>
+          <p class="footer-sub">Open to content design roles.</p>
+        </div>
+        <div class="footer-links">
+          <a href="mailto:manogna.maddipatla@gmail.com">Email</a>
+          <a href="https://linkedin.com/in/manogna-maddipatla" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://substack.com/@manogna" target="_blank" rel="noopener">Substack</a>
+        </div>
+      </div>
+      <div class="footer-base"><span>Manogna</span><span>Detroit, MI</span></div>
+    </footer>
+
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+      <button class="lightbox-close" aria-label="Close" onclick="closeLightbox()">&times;</button>
+      <img src="Assets/Parallax_story.png" alt="Annotated walkthrough of Parallax, enlarged">
+    </div>
+    <script>
+      function openLightbox(){ document.getElementById('lightbox').classList.add('open'); document.body.style.overflow='hidden'; }
+      function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow=''; }
+      document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLightbox(); });
+    </script>
+  </body>
+</html>

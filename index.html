@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manogna — Content designer</title>
+    <link rel="stylesheet" href="styles.css?v=26">
+  </head>
+  <body>
+    <nav class="nav">
+      <a href="index.html" class="nav-wordmark" aria-label="Manogna Maddipatla"><span class="wm-full">Manogna Maddipatla</span><span class="wm-short">MM</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Work</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="Assets/Resume_latest.pdf" target="_blank">Resume</a></li>
+      </ul>
+    </nav>
+
+    <!-- Hero intro -->
+    <section class="hero-intro">
+      <div class="hero-intro-inner">
+        <div class="hero-text">
+          <h1 class="hero-greet">Hi, I&rsquo;m Manogna<span class="hero-dot">.</span></h1>
+          <p class="hero-caption">A writer who refuses to stay within the confines of words.</p>
+        </div>
+        <div class="hero-embed">
+          <iframe
+            src="confines-hero.html"
+            title="Looping animation: a ball ricochets through the letters of the word writer, breaks out, and the word becomes designer as the ball settles as the final period"
+            loading="lazy"
+            scrolling="no"
+          ></iframe>
+        </div>
+      </div>
+    </section>
+
+    <div class="content">
+    <main class="page">
+
+      <!-- Tabs -->
+      <div class="tab-nav" role="tablist">
+        <button
+          class="tab-btn active"
+          role="tab"
+          aria-selected="true"
+          data-tab="content"
+        >
+          Content design
+        </button>
+        <button
+          class="tab-btn"
+          role="tab"
+          aria-selected="false"
+          data-tab="dataviz"
+        >
+          Data viz &amp; storytelling
+        </button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="ux">
+          UX design
+        </button>
+      </div>
+
+      <!-- Content design tab -->
+      <div class="tab-panel active" id="tab-content" role="tabpanel">
+        <div class="card-featured" onclick="location.href='scout.html'">
+          <div class="card-image-area">
+            <img
+              src="assets/scout-featured.jpg"
+              alt="Scout AI style QA assistant interface"
+              onerror="this.style.display='none'"
+            >
+            <iframe
+              src="scout_mascot_card.html"
+              width="100%" 
+              height="100%" 
+              frameborder="0" 
+              scrolling="no"
+              style="border-radius: 16px; display: block;""
+            >
+            </iframe>
+          </div>
+          <div class="featured-card-body">
+            <div>
+              <p class="featured-label">Featured</p>
+              <h2 class="featured-title">Scout</h2>
+              <p class="featured-desc">
+                An AI-powered style QA assistant. Custom prompt engineering,
+                content system design, and a rubric built to scale across a
+                distributed writing team.
+              </p>
+              <div class="card-tags">
+                <span class="tag">Prompt engineering</span>
+                <span class="tag">Content systems</span>
+                <span class="tag">AI tools</span>
+              </div>
+            </div>
+            <a href="scout.html" class="view-link">View case study</a>
+          </div>
+        </div>
+
+        <div class="cards-grid">
+          <div class="small-card" onclick="location.href='Vantage.html'">
+            <div class="small-image">
+              <img
+                src="Assets/Vantage_red.png"
+                alt="Vantage voice and content guidelines"
+                onerror="this.style.display='none'"
+              >
+            </div>
+            <div class="small-body">
+              <p class="small-title">Vantage</p>
+              <p class="small-desc">
+                App designed to manage courses, readings, and deadlines, without losing sight of the bigger picture.
+              </p>
+              <div class="card-tags">
+                <span class="tag">Voice &amp; tone</span>
+                <span class="tag">Style guide</span>
+              </div>
+            </div>
+          </div>
+          <div class="small-card" onclick="location.href='parallax.html'">
+            <div class="small-image">
+              <img
+                src="assets/aussiefit-thumb.jpg"
+                alt="AussieFit Michigan landing page"
+                onerror="this.style.display='none'"
+              >
+              <span class="card-image-placeholder"><img src="Assets/Parallax_cover.png"></span>
+            </div>
+            <div class="small-body">
+              <p class="small-title">Parallax</p>
+              <p class="small-desc">
+                The language and structure of a life-reflection journal.
+              </p>
+              <div class="card-tags">
+                <span class="tag">Content Design</span>
+                <span class="tag">UX writing</span>
+                <span class="tag">UX Design</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data viz & storytelling tab -->
+      <div class="tab-panel" id="tab-dataviz" role="tabpanel">
+        <div class="card-featured" onclick="location.href='rabbit-hole.html'">
+          <div class="card-image-area">
+            <img
+              src="Assets/Bunny.png"
+              alt="Inside the Rabbit Hole scroll data story"
+              onerror="this.style.display='none'"
+            >
+          </div>
+          <div class="featured-card-body">
+            <div>
+              <p class="featured-label">Featured</p>
+              <h2 class="featured-title">Inside the rabbit hole</h2>
+              <p class="featured-desc">
+                An interactive data story on five wild rabbit species, blending
+                ecological data with narrative to make population decline feel
+                personal rather than abstract.
+              </p>
+              <div class="card-tags">
+                <span class="tag">Scrollytelling</span>
+                <span class="tag">Data narrative</span>
+                <span class="tag">Science writing</span>
+              </div>
+            </div>
+            <a href="rabbit-hole.html" class="view-link">View case study</a>
+          </div>
+        </div>
+
+        <div class="cards-grid">
+          <div class="small-card" onclick="location.href='birds.html'">
+            <div class="small-image">
+              <img
+                src="Assets/bird-data%20(1).png"
+                alt="Bird population data story"
+                onerror="this.style.display='none'"
+              >
+            </div>
+            <div class="small-body">
+              <p class="small-title">Bird populations</p>
+              <p class="small-desc">
+                A data story tracking North American bird population trends over
+                four decades.
+              </p>
+              <div class="card-tags">
+                <span class="tag">Data visualization</span>
+                <span class="tag">Narrative design</span>
+              </div>
+            </div>
+          </div>
+          <div class="small-card" onclick="location.href='poppy-ember.html'">
+            <div class="small-image">
+              <img
+                src="Assets/Poppy_garden_cover.png"
+                alt="Poppy and Ember interactive watercolor story"
+                onerror="this.style.display='none'"
+              >
+            </div>
+            <div class="small-body">
+              <p class="small-title">Poppy &amp; Ember</p>
+              <p class="small-desc">
+                An interactive watercolor narrative exploring how visual pacing
+                can carry a story.
+              </p>
+              <div class="card-tags">
+                <span class="tag">Interactive narrative</span>
+                <span class="tag">Visual storytelling</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UX design tab -->
+      <div class="tab-panel" id="tab-ux" role="tabpanel">
+        <div class="card-featured" onclick="location.href='Vantage.html'">
+          <div class="card-image-area" style="background: var(--accent)">
+            <img
+              src="Assets/vantage_preview.png"
+              alt="A hand holding a phone showing the Vantage welcome screen: Track progress, archive, reminisce"
+            >
+          </div>
+          <div class="featured-card-body">
+            <div>
+              <p class="featured-label">Featured</p>
+              <h2 class="featured-title">Vantage</h2>
+              <p class="featured-desc">
+                App designed to manage courses, readings, and deadlines, without
+                losing sight of the bigger picture.
+              </p>
+              <div class="card-tags">
+                <span class="tag">Interaction design</span>
+                <span class="tag">Prototyping</span>
+              </div>
+            </div>
+            <a href="Vantage.html" class="view-link">View case study</a>
+          </div>
+        </div>
+
+        <div class="cards-grid">
+          <div class="small-card" onclick="location.href='nene.html'">
+            <div class="small-image">
+              <img
+                src="Assets/Nene%20banner@1x.png"
+                alt="Nene, a national park visit companion. Logo over a watercolor mountain valley shown by day and by moonlight"
+                style="object-position: left center"
+              >
+            </div>
+            <div class="small-body">
+              <p class="small-title">Nene</p>
+              <p class="small-desc">
+                A national park companion app.
+              </p>
+              <div class="card-tags">
+                <span class="tag">Product direction</span>
+                <span class="tag">Art direction</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Currently building -->
+      <hr class="section-divider">
+
+      <p class="building-label">Currently building</p>
+
+      <div class="building-grid">
+        <div class="building-card is-link" onclick="location.href='nene.html'">
+          <img
+            class="building-banner"
+            src="Assets/Nene%20banner@1x.png"
+            alt="Nene, a national park visit companion. Logo over a watercolor mountain valley shown by day and by moonlight"
+          >
+          <p class="building-title">Nene</p>
+          <p class="building-desc">A national park companion app.</p>
+          <span class="building-status">In progress</span>
+        </div>
+        <div class="building-card">
+          <p class="building-title">Keepsake</p>
+          <p class="building-desc">
+            A private memory app built from personal experience. Copy system,
+            voice, and UX in progress.
+          </p>
+          <span class="building-status">In progress</span>
+        </div>
+        <div class="building-card">
+          <p class="building-title">Find my people</p>
+          <p class="building-desc">
+            A collab app for designers building self-directed portfolio
+            projects.
+          </p>
+          <span class="building-status">In progress</span>
+        </div>
+      </div>
+    </main>
+    </div>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <p class="footer-cta">Let's make something clear.</p>
+          <p class="footer-sub">Open to content design roles.</p>
+        </div>
+        <div class="footer-links">
+          <a href="mailto:manogna.maddipatla@gmail.com">Email</a>
+          <a
+            href="https://linkedin.com/in/manogna-maddipatla"
+            target="_blank"
+            rel="noopener"
+          >LinkedIn</a>
+          <a href="https://substack.com/@manogna" target="_blank" rel="noopener"
+          >Substack</a>
+        </div>
+      </div>
+      <div class="footer-base">
+        <span>Manogna</span>
+        <span>Detroit, MI</span>
+      </div>
+    </footer>
+
+    <script>
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      const tabPanels = document.querySelectorAll(".tab-panel");
+
+      tabBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const target = btn.dataset.tab;
+          tabBtns.forEach((b) => {
+            b.classList.remove("active");
+            b.setAttribute("aria-selected", "false");
+          });
+          tabPanels.forEach((p) => p.classList.remove("active"));
+          btn.classList.add("active");
+          btn.setAttribute("aria-selected", "true");
+          document.getElementById("tab-" + target).classList.add(
+            "active",
+          );
+        });
+      });
+    </script>
+  </body>
+</html>
