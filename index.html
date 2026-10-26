@@ -243,7 +243,7 @@
       <p class="building-label">Currently building</p>
 
       <div class="building-grid">
-        <div class="building-card is-link" onclick="location.href='nene.html'">
+        <div class="building-card is-link" data-tabs="content ux" onclick="location.href='nene.html'">
           <img
             class="building-banner"
             src="Assets/Nene%20banner@1x.png"
@@ -253,7 +253,7 @@
           <p class="building-desc">A national park companion app.</p>
           <span class="building-status">In progress</span>
         </div>
-        <div class="building-card">
+        <div class="building-card" data-tabs="content ux">
           <p class="building-title">Keepsake</p>
           <p class="building-desc">
             A private memory app built from personal experience. Copy system,
@@ -261,7 +261,7 @@
           </p>
           <span class="building-status">In progress</span>
         </div>
-        <div class="building-card">
+        <div class="building-card" data-tabs="content ux">
           <p class="building-title">Find my people</p>
           <p class="building-desc">
             A collab app for designers building self-directed portfolio
@@ -269,7 +269,7 @@
           </p>
           <span class="building-status">In progress</span>
         </div>
-        <div class="building-card">
+        <div class="building-card" data-tabs="dataviz">
           <p class="building-title">Inside the rabbit hole</p>
           <p class="building-desc">
             An interactive data story on five wild rabbit species.
@@ -306,6 +306,15 @@
     <script>
       const tabBtns = document.querySelectorAll(".tab-btn");
       const tabPanels = document.querySelectorAll(".tab-panel");
+      const buildingCards = document.querySelectorAll(".building-card[data-tabs]");
+
+      // Currently building shows only the projects that belong to the open tab
+      function showBuilding(tab) {
+        buildingCards.forEach((card) => {
+          card.hidden = !card.dataset.tabs.split(" ").includes(tab);
+        });
+      }
+      showBuilding(document.querySelector(".tab-btn.active")?.dataset.tab || "content");
 
       tabBtns.forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -320,6 +329,7 @@
           document.getElementById("tab-" + target).classList.add(
             "active",
           );
+          showBuilding(target);
         });
       });
     </script>
