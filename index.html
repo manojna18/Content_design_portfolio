@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manogna | Content designer</title>
-    <link rel="stylesheet" href="styles.css?v=38">
+    <link rel="stylesheet" href="styles.css?v=39">
   </head>
   <body class="home">
     <header class="nav">
@@ -29,17 +29,21 @@
           </p>
           <a href="Assets/Resume_latest.pdf" class="hero-resume" download>Download resume</a>
         </div>
-        <div
-          class="morph"
-          id="morph"
-          role="img"
-          aria-label="Rotating samples of my words, design, and data work: my Reuters health reporting, the Vantage app screens, and a bird population data story"
-        >
-          <canvas></canvas>
-          <!-- Slides, in rotation order; the script draws them onto the canvas -->
-          <img class="morph-slide" src="Assets/hero-reuters.jpg" alt="" hidden>
-          <img class="morph-slide" src="Assets/hero-vantage.jpg" alt="" hidden>
-          <img class="morph-slide" src="Assets/hero-birds.jpg" alt="" hidden>
+        <div class="morph-wrap">
+          <div
+            class="morph"
+            id="morph"
+            role="img"
+            aria-label="Rotating samples of my words, design, and data work: my Reuters health reporting, the Vantage app screens, and a bird population data story"
+          >
+            <canvas></canvas>
+            <!-- Slides, in rotation order; the script draws them onto the canvas -->
+            <img class="morph-slide" src="Assets/hero-reuters.jpg" data-label="Words" alt="" hidden>
+            <img class="morph-slide" src="Assets/hero-vantage.jpg" data-label="Design" alt="" hidden>
+            <img class="morph-slide" src="Assets/hero-birds.jpg" data-label="Data" alt="" hidden>
+          </div>
+          <!-- Names the slide on show; stays hidden unless the script can keep it in step -->
+          <p class="morph-caption" id="morph-caption" aria-hidden="true" hidden><span></span><span></span></p>
         </div>
       </section>
 
@@ -228,6 +232,8 @@
         var W = 900, H = 1200; // internal resolution (3:4)
 
         var root = document.getElementById("morph");
+        var caption = document.getElementById("morph-caption");
+        var capNow = caption.children[0], capNext = caption.children[1];
         var canvas = root.querySelector("canvas");
         canvas.width = W;
         canvas.height = H;
@@ -258,21 +264,38 @@
         function go(imgs) {
           var tiles = imgs.map(padded);
           if (!tiles.length) return;
+          // Labels come from the slides that loaded, so they always match what is drawn
+          var labels = imgs.map(function (img) { return (img.dataset.label || "").trim(); });
+          var labelled = labels.every(Boolean);
           var g = canvas.getContext("2d");
-          if (reduce || tiles.length < 2) { g.drawImage(tiles[0], 0, 0); return; }
-          fade(g, tiles);
+          if (reduce || tiles.length < 2) {
+            g.drawImage(tiles[0], 0, 0);
+            if (labelled) { caption.hidden = false; showCaption(labels[0], "", 0); }
+            return;
+          }
+          fade(g, tiles, labelled ? labels : null);
+        }
+
+        // Caption crossfade mirrors the image: same progress value, same frame
+        function showCaption(now, next, p) {
+          if (capNow.textContent !== now) capNow.textContent = now;
+          if (capNext.textContent !== next) capNext.textContent = next;
+          capNow.style.opacity = 1 - p;
+          capNext.style.opacity = p;
         }
 
         // One image fades out as the next fades in
-        function fade(g, tiles) {
+        function fade(g, tiles, labels) {
           var cur = 0, nxt = 1, phase = "hold", t0 = performance.now();
           var paused = false, pausedAt = 0, shift = 0;
           function draw(p) {
             g.globalAlpha = 1; g.drawImage(tiles[cur], 0, 0);
             g.globalAlpha = p; g.drawImage(tiles[nxt], 0, 0);
             g.globalAlpha = 1;
+            if (labels) showCaption(labels[cur], labels[nxt], p);
           }
           draw(0);
+          if (labels) caption.hidden = false;
           function frame(now) {
             requestAnimationFrame(frame);
             if (paused || document.hidden) return;

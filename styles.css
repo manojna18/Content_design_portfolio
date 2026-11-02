@@ -1279,13 +1279,31 @@ button:focus-visible,
   display: block;
 }
 
+/* One word under the card naming the slide; sized and set like the project tags */
+.morph-caption {
+  display: grid;
+  margin-top: 12px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: left;
+}
+
+/* Outgoing and incoming words share one cell so they crossfade in place */
+.morph-caption span {
+  grid-area: 1 / 1;
+}
+
 @media (max-width: 900px) {
   .hero-home {
     grid-template-columns: 1fr;
     gap: 40px;
     padding-top: 48px;
   }
-  .morph {
+  .morph-wrap {
     max-width: 420px;
   }
 }
