@@ -44,6 +44,7 @@ h1, h2, h3, h4, h5, h6 {
   --muted:       #6b6b76;   /* captions, tags */
   --indigo:      #002668;   /* accent: links, hover, focus rings */
   --placeholder: #d9d9d9;   /* empty image slots */
+  --sun:         #ffd43b;   /* footer */
 
   --border:      1px solid var(--black);
   --border-bold: 2px solid var(--black);
@@ -475,7 +476,7 @@ button:focus-visible,
 
 /* ─── Footer ─── */
 .footer {
-  background: var(--bg);
+  background: var(--sun);
   color: var(--ink);
   border-top: var(--border);
   padding: 48px var(--gutter) 40px;
@@ -548,7 +549,7 @@ button:focus-visible,
 .footer-base span {
   font-family: var(--font-sans);
   font-size: 13px;
-  color: var(--muted);
+  color: var(--ink);
   letter-spacing: 0.04em;
 }
 
