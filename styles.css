@@ -1068,9 +1068,14 @@ button:focus-visible,
 }
 
 /* Design decision zigzag: text beside a screen panel, panels meet at corners */
+/* Bordered like the home page project cards: an outer frame, the screen inset with its own border */
 .decision-feature {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 20px;
+  border: var(--border);
+  margin-bottom: 24px;
 }
 
 .decision-feature.is-flipped .decision-text {
@@ -1102,7 +1107,7 @@ button:focus-visible,
 
 .decision-screen {
   background: var(--bg);
-  border: none;
+  border: var(--border);
   border-radius: var(--radius);
   aspect-ratio: 1;
   align-items: flex-end;
@@ -1173,7 +1178,9 @@ button:focus-visible,
 @media (max-width: 720px) {
   .decision-feature {
     grid-template-columns: 1fr;
-    margin-bottom: 40px;
+    gap: 0;
+    padding: 14px;
+    margin-bottom: 20px;
   }
 
   .decision-feature.is-flipped .decision-text {
@@ -1181,7 +1188,7 @@ button:focus-visible,
   }
 
   .decision-text {
-    padding: 0 0 20px;
+    padding: 6px 6px 20px;
   }
 
   .decision-text .decision-body {
