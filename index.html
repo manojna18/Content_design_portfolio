@@ -87,14 +87,14 @@
             class="project-media tree-grow"
             id="tree-grow"
             role="img"
-            aria-label="A ginkgo tree grows from a seedling to full height"
+            aria-label="A full-grown ginkgo tree. On hover it grows from a seedling to full height"
           >
-            <img src="Assets/parallax-tree/stage-0.webp" alt="" class="is-on" loading="lazy">
+            <img src="Assets/parallax-tree/stage-0.webp" alt="" loading="lazy">
             <img src="Assets/parallax-tree/stage-1.webp" alt="" loading="lazy">
             <img src="Assets/parallax-tree/stage-2.webp" alt="" loading="lazy">
             <img src="Assets/parallax-tree/stage-3.webp" alt="" loading="lazy">
             <img src="Assets/parallax-tree/stage-4.webp" alt="" loading="lazy">
-            <img src="Assets/parallax-tree/stage-5.webp" alt="" loading="lazy">
+            <img src="Assets/parallax-tree/stage-5.webp" alt="" class="is-on" loading="lazy">
           </div>
           <div class="project-body">
             <h2 class="project-title">Parallax</h2>
@@ -297,34 +297,47 @@
         }
       })();
 
-      // Parallax card: the ginkgo grows stage by stage, then starts again
+      // Card previews rest on a still frame and play while the card is hovered or focused
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      function playOnHover(card, start, stop) {
+        if (reduceMotion) return;
+        card.addEventListener("mouseenter", start);
+        card.addEventListener("mouseleave", stop);
+        card.addEventListener("focusin", start);
+        card.addEventListener("focusout", stop);
+      }
+
+      // Scout: the mascot embed animates only while its card is active
       (function () {
-        var box = document.getElementById("tree-grow");
-        var stages = box.querySelectorAll("img");
-        var HOLD = [900, 900, 900, 900, 900, 2400]; // ms on each stage
-        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        var cur = 0, timer = null, visible = false;
+        const frame = document.querySelector('.project-card iframe[src="scout_mascot_card.html"]');
+        const toggle = (on) => () => {
+          const doc = frame.contentDocument;
+          if (doc) doc.documentElement.classList.toggle("is-playing", on);
+        };
+        playOnHover(frame.closest(".project-card"), toggle(true), toggle(false));
+      })();
+
+      // Parallax: shows the full ginkgo; on hover it grows from a seedling, stage by stage
+      (function () {
+        const box = document.getElementById("tree-grow");
+        const stages = box.querySelectorAll("img");
+        const HOLD = [700, 700, 700, 700, 700, 1800]; // ms on each stage
+        const FULL = stages.length - 1;
+        let cur = FULL, timer = null;
 
         function show(n) {
           stages[cur].classList.remove("is-on");
           stages[n].classList.add("is-on");
           cur = n;
         }
-        if (reduce) { show(stages.length - 1); return; }
-
         function tick() {
-          timer = setTimeout(function () {
-            show((cur + 1) % stages.length);
-            tick();
-          }, HOLD[cur]);
+          timer = setTimeout(() => { show((cur + 1) % stages.length); tick(); }, HOLD[cur]);
         }
-        // Only run while the card is on screen
-        new IntersectionObserver(function (entries) {
-          var on = entries[0].isIntersecting;
-          if (on && !visible) tick();
-          if (!on) clearTimeout(timer);
-          visible = on;
-        }).observe(box);
+        playOnHover(
+          box.closest(".project-card"),
+          () => { clearTimeout(timer); show(0); tick(); },
+          () => { clearTimeout(timer); show(FULL); }
+        );
       })();
 
       // Project filter: shows only the cards whose data-category matches

@@ -158,6 +158,20 @@
           transform: translateX(1px);
         }
       }
+
+      /* Still until hovered, or until the embedding page adds .is-playing */
+      .antenna-blink, .car-body, .wheel-left, .wheel-right, .eye-left, .eye-right {
+        animation-play-state: paused;
+      }
+      body:hover :is(.antenna-blink, .car-body, .wheel-left, .wheel-right, .eye-left, .eye-right),
+      .is-playing :is(.antenna-blink, .car-body, .wheel-left, .wheel-right, .eye-left, .eye-right) {
+        animation-play-state: running;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .antenna-blink, .car-body, .wheel-left, .wheel-right, .eye-left, .eye-right {
+          animation: none;
+        }
+      }
     </style>
   </head>
   <body>
