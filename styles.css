@@ -44,7 +44,7 @@ h1, h2, h3, h4, h5, h6 {
   --muted:       #6b6b76;   /* captions, tags */
   --indigo:      #002668;   /* accent: links, hover, focus rings */
   --placeholder: #d9d9d9;   /* empty image slots */
-  --sun:         #fff1a8;   /* header and footer, soft butter yellow */
+  --sun:         #fff1a8;   /* footer, soft butter yellow */
 
   --border:      1px solid var(--black);
   --border-bold: 2px solid var(--black);
@@ -103,7 +103,7 @@ button:focus-visible,
 
 /* ─── Header ─── */
 .nav {
-  background: var(--sun);
+  background: var(--bg);
   color: var(--ink);
   display: flex;
   align-items: center;
