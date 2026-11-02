@@ -260,6 +260,16 @@ button:focus-visible,
   pointer-events: none;
 }
 
+/* Whole image shown on white instead of cropped to fill */
+.project-media.is-contain {
+  background: var(--bg);
+}
+
+.project-media.is-contain img {
+  object-fit: contain;
+  padding: 16px;
+}
+
 .project-body {
   display: flex;
   flex-direction: column;
