@@ -17,26 +17,27 @@
       </nav>
     </header>
 
-    <!-- Hero intro -->
-    <section class="hero-intro">
-      <div class="hero-intro-inner">
-        <div class="hero-text">
-          <h1 class="hero-greet">Hi, I&rsquo;m Manogna<span class="hero-dot">.</span></h1>
-          <p class="hero-caption">A writer who refuses to stay within the confines of words.</p>
-        </div>
-        <div class="hero-embed">
-          <iframe
-            src="confines-hero.html"
-            title="Looping animation: a ball ricochets through the letters of the word writer, breaks out, and the word becomes designer as the ball settles as the final period"
-            loading="lazy"
-            scrolling="no"
-          ></iframe>
-        </div>
-      </div>
-    </section>
-
-    <div class="content">
     <main class="page">
+
+      <!-- Hero -->
+      <section class="hero-home">
+        <div class="hero-home-text">
+          <h1 class="hero-headline">I&rsquo;m a writer who thinks beyond words.</h1>
+          <p class="hero-lede">
+            For eight years, I&rsquo;ve made complex information clear, from content
+            writing, journalism, and technical writing to UX and content design.
+          </p>
+          <p class="hero-scroll">Scroll down for select projects.</p>
+        </div>
+        <div
+          class="morph"
+          id="morph"
+          role="img"
+          aria-label="Rotating samples of my work: a bird population data story, the Vantage app screens, and my Reuters health reporting"
+        >
+          <canvas></canvas>
+        </div>
+      </section>
 
       <!-- Tabs -->
       <div class="tab-nav" role="tablist">
@@ -284,7 +285,6 @@
         </div>
       </div>
     </main>
-    </div>
 
     <footer class="footer">
       <div class="footer-inner">
@@ -311,6 +311,87 @@
     </footer>
 
     <script>
+      // Hero card: crossfades work samples, pauses on hover, still for reduced motion
+      (function () {
+        var SRC = [
+          "Assets/hero-birds.jpg",
+          "Assets/hero-vantage.jpg",
+          "Assets/hero-reuters.jpg",
+        ];
+        var HOLD = 2400;       // ms each image rests
+        var MORPH = 1000;      // ms the fade takes
+        var PAD = 0.04;        // white space around each image (fraction of the card)
+        var W = 900, H = 1200; // internal resolution (3:4)
+
+        var root = document.getElementById("morph");
+        var canvas = root.querySelector("canvas");
+        canvas.width = W;
+        canvas.height = H;
+        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        // Draw each image onto a white tile with padding, fitted inside
+        function padded(img) {
+          var c = document.createElement("canvas");
+          c.width = W;
+          c.height = H;
+          var g = c.getContext("2d");
+          g.fillStyle = "#fff";
+          g.fillRect(0, 0, W, H);
+          var bw = W * (1 - 2 * PAD), bh = H * (1 - 2 * PAD);
+          var s = Math.min(bw / img.naturalWidth, bh / img.naturalHeight);
+          var w = img.naturalWidth * s, h = img.naturalHeight * s;
+          g.imageSmoothingQuality = "high";
+          g.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+          return c;
+        }
+
+        var imgs = [], loaded = 0;
+        SRC.forEach(function (src, k) {
+          var im = new Image();
+          im.onload = function () { imgs[k] = im; if (++loaded === SRC.length) go(); };
+          im.onerror = function () { if (++loaded === SRC.length) go(); };
+          im.src = src;
+        });
+
+        function go() {
+          var tiles = imgs.filter(Boolean).map(padded);
+          if (!tiles.length) return;
+          var g = canvas.getContext("2d");
+          if (reduce || tiles.length < 2) { g.drawImage(tiles[0], 0, 0); return; }
+          fade(g, tiles);
+        }
+
+        // One image fades out as the next fades in
+        function fade(g, tiles) {
+          var cur = 0, nxt = 1, phase = "hold", t0 = performance.now();
+          var paused = false, pausedAt = 0, shift = 0;
+          function draw(p) {
+            g.globalAlpha = 1; g.drawImage(tiles[cur], 0, 0);
+            g.globalAlpha = p; g.drawImage(tiles[nxt], 0, 0);
+            g.globalAlpha = 1;
+          }
+          draw(0);
+          function frame(now) {
+            requestAnimationFrame(frame);
+            if (paused || document.hidden) return;
+            var el = now - t0 - shift;
+            if (phase === "hold") {
+              if (el >= HOLD) { phase = "fade"; t0 = now; shift = 0; }
+              return;
+            }
+            var p = Math.min(el / MORPH, 1);
+            draw(p);
+            if (p >= 1) {
+              cur = nxt; nxt = (nxt + 1) % tiles.length;
+              phase = "hold"; t0 = now; shift = 0; draw(0);
+            }
+          }
+          requestAnimationFrame(frame);
+          root.addEventListener("mouseenter", function () { paused = true; pausedAt = performance.now(); });
+          root.addEventListener("mouseleave", function () { shift += performance.now() - pausedAt; paused = false; });
+        }
+      })();
+
       const tabBtns = document.querySelectorAll(".tab-btn");
       const tabPanels = document.querySelectorAll(".tab-panel");
       const buildingCards = document.querySelectorAll(".building-card[data-tabs]");
