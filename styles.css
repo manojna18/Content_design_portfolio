@@ -912,6 +912,11 @@ button:focus-visible,
   height: auto;
 }
 
+/* Butter yellow behind an embed, matching the footer */
+.case-hero-image.is-sun {
+  background: var(--sun);
+}
+
 .case-hero-image .img-placeholder {
   font-size: 12px;
   letter-spacing: 0.08em;
