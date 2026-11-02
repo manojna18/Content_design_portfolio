@@ -12,11 +12,11 @@
     />
     <style>
       :root {
-        --paper: #932d2c;
-        --ink: #fffbf7;
-        --line: #e8dcd3;
-        --ink-soft: #6f6259;
-        --active: #b23c39;
+        --paper: #ffffff;
+        --ink: #111111;
+        --line: #000000;
+        --ink-soft: #6b6b76;
+        --active: #002668;
       }
       * {
         box-sizing: border-box;
@@ -100,8 +100,8 @@
         var W = 1000,
           H = 252,
           BASE_Y = 250; // baseline, in internal units
-        var BG = "#932d2c",
-          INK = "#fffbf7";
+        var BG = "#ffffff",
+          INK = "#111111";
         var DPR = Math.min(window.devicePixelRatio || 1, 2);
 
         function setupCanvas() {
@@ -926,7 +926,7 @@
           // contact shadow
           ctx.save();
           ctx.globalAlpha = 0.22 * (1 - lift * 0.7);
-          ctx.fillStyle = "#5a1c1b";
+          ctx.fillStyle = "#000000";
           ctx.beginPath();
           ctx.ellipse(
             x,
@@ -949,17 +949,17 @@
             y,
             r
           );
-          g.addColorStop(0, "#a99a8f");
-          g.addColorStop(0.28, "#5b4f46");
-          g.addColorStop(0.6, "#2f2823");
-          g.addColorStop(1, "#181410");
+          g.addColorStop(0, "#5b7bb8");
+          g.addColorStop(0.28, "#1d4384");
+          g.addColorStop(0.6, "#002668");
+          g.addColorStop(1, "#00112e");
           ctx.fillStyle = g;
           ctx.beginPath();
           ctx.arc(x, y, r, 0, Math.PI * 2);
           ctx.fill();
 
           // specular dot
-          ctx.fillStyle = "rgba(255, 251, 247, 0.9)";
+          ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
           ctx.beginPath();
           ctx.arc(x - r * 0.4, y - r * 0.42, r * 0.18, 0, Math.PI * 2);
           ctx.fill();
@@ -1124,7 +1124,7 @@
           ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
           ctx.fillStyle = BG;
           ctx.fillRect(0, 0, W, H);
-          ctx.fillStyle = "#65617c";
+          ctx.fillStyle = "#6b6b76";
           ctx.font = '400 16px "Public Sans", sans-serif';
           ctx.textAlign = "center";
           ctx.fillText(msg, W / 2, H / 2);
