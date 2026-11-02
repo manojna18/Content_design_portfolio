@@ -515,7 +515,7 @@ button:focus-visible,
 .about-lead {
   font-family: var(--font-serif);
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 400;
   font-style: italic;
   color: var(--ink);
   line-height: 1.5;
@@ -780,7 +780,7 @@ button:focus-visible,
 }
 
 .glance-text {
-  font-family: var(--font);
+  font-family: var(--font-serif);
   font-size: 19px;
   line-height: 1.4;
   color: var(--ink);
@@ -862,7 +862,7 @@ button:focus-visible,
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ink);
 }
 
 /* Figma / prototype embed */
@@ -890,14 +890,14 @@ button:focus-visible,
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ink);
 }
 
 .prototype-embed .pe-hint {
   font-family: var(--font-serif);
   font-size: 14px;
   font-style: italic;
-  color: var(--muted);
+  color: var(--ink);
 }
 
 .embed-caption {
@@ -958,7 +958,7 @@ button:focus-visible,
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ink);
 }
 
 /* Full-width hero mockup that keeps its proportions */
