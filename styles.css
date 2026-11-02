@@ -78,55 +78,59 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* ─── Navbar ─── */
+/* ─── Focus ─── */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 3px;
+}
+
+/* ─── Header ─── */
 .nav {
-  background: var(--navbar);
-  color: var(--cream);
+  background: var(--bg);
+  color: var(--ink);
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  padding: 20px 28px;
+  gap: 24px;
+  padding: 18px var(--gutter);
+  border-bottom: var(--border);
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
-.nav-wordmark {
-  font-family: var(--font);
-  font-size: 19px;
-  font-weight: 600;
-  letter-spacing: -0.005em;
-  color: var(--cream);
-}
-
-.nav-wordmark .wm-short {
-  display: none;
+.nav-logo img {
+  height: 40px;
+  width: auto;
 }
 
 .nav-links {
   display: flex;
-  gap: 28px;
+  gap: 44px;
   list-style: none;
 }
 
+/* Plain page links, not toggles: the segmented style belongs to the project filter */
 .nav-links a {
-  font-family: var(--font-body);
+  font-family: var(--font-sans);
   font-size: 14px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.6);
-  letter-spacing: 0.01em;
-  transition: color 0.2s;
-  padding-bottom: 2px;
-  border-bottom: 1px solid transparent;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: underline 2px transparent;
+  text-underline-offset: 6px;
+  transition: text-decoration-color 0.2s;
+}
+
+.nav-links a[aria-current="page"] {
+  text-decoration-color: var(--black);
 }
 
 .nav-links a:hover {
-  color: var(--cream);
-}
-
-.nav-links a.active {
-  color: var(--cream);
-  border-bottom-color: var(--indigo);
+  text-decoration-color: var(--indigo);
 }
 
 /* ─── Page wrapper ─── */
@@ -504,6 +508,7 @@ body {
 
 .footer-links {
   display: flex;
+  flex-wrap: wrap;
   gap: 28px;
 }
 
@@ -1261,20 +1266,17 @@ body {
 /* ─── Responsive ─── */
 @media (max-width: 700px) {
   .nav {
-    padding: 18px 20px;
+    padding: 14px var(--gutter-sm);
   }
-  .nav-wordmark .wm-full {
-    display: none;
-  }
-  .nav-wordmark .wm-short {
-    display: inline;
-    letter-spacing: 0.04em;
+  .nav-logo img {
+    height: 30px;
   }
   .nav-links {
-    gap: 18px;
+    gap: 24px;
   }
   .nav-links a {
-    font-size: 14px;
+    font-size: 13px;
+    letter-spacing: 0.1em;
   }
   .page {
     padding: 0 20px;
