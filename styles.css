@@ -1,5 +1,5 @@
 /* ─── Google Fonts ─── */
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@700&family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:ital,wght@0,400;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,400;0,700;1,300;1,400&family=Inria+Serif:ital,wght@0,400;1,400&family=Sansation:wght@700&display=swap");
 
 /* ─── Reset ─── */
 [hidden] {
@@ -50,12 +50,13 @@ h1, h2, h3, h4, h5, h6 {
   --radius:      0;         /* no rounded corners anywhere */
 
   /* Type */
-  --font-display: "Outfit", "Helvetica Neue", Arial, sans-serif;
-  --font-serif:   "Source Serif 4", Georgia, "Times New Roman", serif;
-  --font-sans:    "Source Sans 3", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: "Sansation", "Helvetica Neue", Arial, sans-serif;
+  --font-serif:   "Inria Serif", Georgia, "Times New Roman", serif;
+  --font-sans:    "Inria Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   /* Spacing */
   --page-max:    1080px;
+  --page-max-home: 1200px;
   --gutter:      28px;
   --gutter-sm:   20px;
   --section-gap: 64px;
@@ -107,7 +108,7 @@ button:focus-visible,
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 18px var(--gutter);
+  padding: 36px 42px;
   border-bottom: var(--border);
   position: sticky;
   top: 0;
@@ -115,7 +116,7 @@ button:focus-visible,
 }
 
 .nav-logo img {
-  height: 40px;
+  height: 50px;
   width: auto;
 }
 
@@ -128,9 +129,9 @@ button:focus-visible,
 /* Plain page links, not toggles: the segmented style belongs to the project filter */
 .nav-links a {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink);
   text-decoration: underline 2px transparent;
@@ -147,8 +148,12 @@ button:focus-visible,
 }
 
 /* ─── Page wrapper ─── */
+.home {
+  --page-max: var(--page-max-home);
+}
+
 .page {
-  max-width: 1080px;
+  max-width: var(--page-max);
   margin: 0 auto;
   padding: 0 28px;
 }
@@ -160,7 +165,7 @@ button:focus-visible,
 
 .hero h1 {
   font-size: 36px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.2;
   color: var(--ink);
@@ -186,11 +191,13 @@ button:focus-visible,
 
 .filter-btn {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 12px 24px;
+  min-width: 185px;
+  height: 36px;
+  padding: 0 16px;
   background: var(--bg);
   color: var(--ink);
   border: var(--border);
@@ -222,8 +229,10 @@ button:focus-visible,
 .project-card {
   position: relative;
   display: grid;
-  grid-template-columns: 45% 1fr;
-  min-height: 340px;
+  grid-template-columns: 48% 1fr;
+  gap: 30px;
+  min-height: 480px;
+  padding: 20px;
   border: var(--border);
   border-radius: var(--radius);
   background: var(--bg);
@@ -233,7 +242,7 @@ button:focus-visible,
   position: relative;
   overflow: hidden;
   background: var(--placeholder);
-  border-right: var(--border);
+  border: var(--border);
 }
 
 .project-media img,
@@ -254,28 +263,29 @@ button:focus-visible,
 .project-body {
   display: flex;
   flex-direction: column;
-  padding: 40px;
+  padding: 10px 22px 10px 0;
 }
 
 .project-title {
-  font-family: var(--font-display);
-  font-size: 30px;
-  line-height: 1.15;
+  font-family: var(--font-sans);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
   color: var(--ink);
-  margin-bottom: 12px;
+  margin-bottom: 18px;
 }
 
 .project-desc {
-  font-family: var(--font-serif);
-  font-size: 18px;
-  line-height: 1.55;
+  font-family: var(--font-sans);
+  font-size: 22px;
+  line-height: 1.4;
   color: var(--ink);
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .project-role {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.5;
   color: var(--muted);
   margin-bottom: 20px;
@@ -290,9 +300,9 @@ button:focus-visible,
   margin-top: auto;
   align-self: flex-start;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink);
   text-decoration: underline 2px;
@@ -328,16 +338,21 @@ button:focus-visible,
 .card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 12px;
 }
 
 .tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 150px;
+  height: 36px;
+  padding: 0 18px;
   font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 4px 10px;
   border: var(--border);
   border-radius: var(--radius);
   color: var(--muted);
@@ -398,7 +413,7 @@ button:focus-visible,
 
 .building-title {
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink);
   margin-bottom: 6px;
 }
@@ -444,19 +459,19 @@ button:focus-visible,
 }
 
 .footer-cta {
-  font-family: var(--font-display);
-  font-size: 26px;
+  font-family: var(--font-sans);
+  font-size: 24px;
   font-weight: 700;
   line-height: 1.3;
   color: var(--ink);
-  margin-bottom: 6px;
+  margin-bottom: 24px;
 }
 
 .footer-sub {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 16px;
   font-style: italic;
-  color: var(--muted);
+  color: var(--ink);
 }
 
 .footer-links {
@@ -467,9 +482,9 @@ button:focus-visible,
 
 .footer-links a {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink);
   text-decoration: underline 2px transparent;
@@ -506,7 +521,7 @@ button:focus-visible,
 
 .about-head h1 {
   font-size: 38px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--ink);
   margin-bottom: 12px;
@@ -622,7 +637,7 @@ button:focus-visible,
 /* ─── Section headings (About: Skills, Experience, Education) ─── */
 .section-heading {
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--ink);
   margin-bottom: 24px;
@@ -641,7 +656,7 @@ button:focus-visible,
 
 .skill-chip {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border: 1px solid var(--line);
@@ -675,7 +690,7 @@ button:focus-visible,
 
 .entry-role {
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink);
   letter-spacing: -0.01em;
 }
@@ -727,7 +742,7 @@ button:focus-visible,
 
 .cs-title {
   font-size: 44px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--ink);
   margin-bottom: 14px;
@@ -775,7 +790,7 @@ button:focus-visible,
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 10px;
 }
 
@@ -818,7 +833,7 @@ button:focus-visible,
 
 .block h2 {
   font-size: 26px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink);
   margin-bottom: 18px;
   letter-spacing: -0.01em;
@@ -925,7 +940,7 @@ button:focus-visible,
 
 .decision-title {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink);
 }
 
@@ -999,7 +1014,7 @@ button:focus-visible,
 
 .result-stat-num {
   font-size: 44px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink);
   line-height: 1;
 }
@@ -1102,7 +1117,7 @@ button:focus-visible,
   background: var(--black);
   color: var(--cream);
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   font-family: var(--font-sans);
   text-decoration: none;
   transition: background 0.2s;
@@ -1139,36 +1154,40 @@ button:focus-visible,
 .hero-home {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 440px;
-  gap: 64px;
-  align-items: center;
-  padding: 72px 0 var(--section-gap);
+  gap: 48px;
+  align-items: start;
+  padding: 46px 0 var(--section-gap);
+}
+
+.hero-home-text {
+  padding-top: 25px;
 }
 
 .hero-headline {
   font-family: var(--font-display);
-  font-size: clamp(40px, 5.4vw, 62px);
+  font-size: clamp(36px, 4.2vw, 48px);
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.01em;
   text-transform: uppercase;
   color: var(--ink);
-  margin-bottom: 28px;
+  margin-bottom: 44px;
 }
 
 .hero-lede {
   font-family: var(--font-serif);
-  font-size: 21px;
+  font-size: 30px;
   line-height: 1.6;
   color: var(--ink);
-  max-width: 32em;
-  margin-bottom: 20px;
+  margin-bottom: 44px;
 }
 
 .hero-scroll {
-  font-family: var(--font-serif);
-  font-size: 16px;
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 300;
   font-style: italic;
-  color: var(--muted);
+  color: var(--ink);
 }
 
 /* Rotating work samples */
@@ -1176,7 +1195,7 @@ button:focus-visible,
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 4;
-  border: 2px solid var(--indigo);
+  border: var(--border-bold);
   border-radius: var(--radius);
   background: var(--bg);
   overflow: hidden;
@@ -1207,7 +1226,7 @@ button:focus-visible,
     padding: 14px var(--gutter-sm);
   }
   .nav-logo img {
-    height: 30px;
+    height: 32px;
   }
   .nav-links {
     gap: 24px;
@@ -1230,23 +1249,31 @@ button:focus-visible,
 
   .project-card {
     grid-template-columns: 1fr;
+    gap: 20px;
     min-height: 0;
+    padding: 14px;
   }
   .project-media {
     aspect-ratio: 16 / 10;
-    border-right: none;
-    border-bottom: var(--border);
   }
   .project-body {
-    padding: 24px;
+    padding: 0 6px 6px;
   }
   .project-title {
     font-size: 26px;
   }
+  .project-desc {
+    font-size: 19px;
+  }
+  .tag {
+    min-width: 0;
+    height: 32px;
+    padding: 0 12px;
+  }
   .filter-btn {
-    padding: 12px 14px;
-    font-size: 12px;
-    letter-spacing: 0.08em;
+    min-width: 0;
+    padding: 0 12px;
+    font-size: 13px;
   }
 
   .building-grid {
@@ -1305,6 +1332,13 @@ button:focus-visible,
   }
 
   .hero-lede {
+    font-size: 21px;
+    margin-bottom: 28px;
+  }
+  .hero-headline {
+    margin-bottom: 28px;
+  }
+  .hero-scroll {
     font-size: 19px;
   }
 }
