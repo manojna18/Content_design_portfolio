@@ -260,6 +260,34 @@ button:focus-visible,
   pointer-events: none;
 }
 
+/* Parallax ginkgo: stages stack on white and crossfade; heights follow the prototype */
+.project-media.tree-grow {
+  background: var(--bg);
+}
+
+.project-media.tree-grow img {
+  inset: auto;
+  left: 50%;
+  bottom: 6%;
+  width: auto;
+  max-width: none;
+  transform: translateX(-50%);
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+.tree-grow img:nth-child(1) { height: calc(88% * 10 / 52); }
+.tree-grow img:nth-child(2) { height: calc(88% * 16 / 52); }
+.tree-grow img:nth-child(3) { height: calc(88% * 24 / 52); }
+.tree-grow img:nth-child(4) { height: calc(88% * 34 / 52); }
+.tree-grow img:nth-child(5) { height: calc(88% * 44 / 52); }
+.tree-grow img:nth-child(6) { height: 88%; }
+
+.project-media.tree-grow img.is-on {
+  opacity: 1;
+}
+
 /* Whole image shown on white instead of cropped to fill */
 .project-media.is-contain {
   background: var(--bg);

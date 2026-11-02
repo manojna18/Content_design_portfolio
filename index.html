@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manogna | Content designer</title>
-    <link rel="stylesheet" href="styles.css?v=31">
+    <link rel="stylesheet" href="styles.css?v=32">
   </head>
   <body class="home">
     <header class="nav">
@@ -83,8 +83,18 @@
           </div>
         </article>
         <article class="project-card" data-category="ux">
-          <div class="project-media is-contain">
-            <img src="Assets/parallax-card.jpg" alt="Parallax screens: a July photo entry, and the splash screen held in a hand">
+          <div
+            class="project-media tree-grow"
+            id="tree-grow"
+            role="img"
+            aria-label="A ginkgo tree grows from a seedling to full height"
+          >
+            <img src="Assets/parallax-tree/stage-0.webp" alt="" class="is-on" loading="lazy">
+            <img src="Assets/parallax-tree/stage-1.webp" alt="" loading="lazy">
+            <img src="Assets/parallax-tree/stage-2.webp" alt="" loading="lazy">
+            <img src="Assets/parallax-tree/stage-3.webp" alt="" loading="lazy">
+            <img src="Assets/parallax-tree/stage-4.webp" alt="" loading="lazy">
+            <img src="Assets/parallax-tree/stage-5.webp" alt="" loading="lazy">
           </div>
           <div class="project-body">
             <h2 class="project-title">Parallax</h2>
@@ -285,6 +295,36 @@
           root.addEventListener("mouseenter", function () { paused = true; pausedAt = performance.now(); });
           root.addEventListener("mouseleave", function () { shift += performance.now() - pausedAt; paused = false; });
         }
+      })();
+
+      // Parallax card: the ginkgo grows stage by stage, then starts again
+      (function () {
+        var box = document.getElementById("tree-grow");
+        var stages = box.querySelectorAll("img");
+        var HOLD = [900, 900, 900, 900, 900, 2400]; // ms on each stage
+        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var cur = 0, timer = null, visible = false;
+
+        function show(n) {
+          stages[cur].classList.remove("is-on");
+          stages[n].classList.add("is-on");
+          cur = n;
+        }
+        if (reduce) { show(stages.length - 1); return; }
+
+        function tick() {
+          timer = setTimeout(function () {
+            show((cur + 1) % stages.length);
+            tick();
+          }, HOLD[cur]);
+        }
+        // Only run while the card is on screen
+        new IntersectionObserver(function (entries) {
+          var on = entries[0].isIntersecting;
+          if (on && !visible) tick();
+          if (!on) clearTimeout(timer);
+          visible = on;
+        }).observe(box);
       })();
 
       // Project filter: shows only the cards whose data-category matches
